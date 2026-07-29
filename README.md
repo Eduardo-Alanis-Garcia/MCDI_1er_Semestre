@@ -1,3 +1,10 @@
+# [Maestría en Ciencia de Datos e Información en INFOTEC, primer semestre (periodo 2026-2)](https://eduardo-alanis-garcia.github.io/MCDI_1er_Semestre/)
+
+## Sesiones
+
+
+## Actividades
+
 | Curso | Actividad | Tipo | Fecha | Hora |
 |---|---|---|---|---|
 | Estadística | 1A. Quiz: Conceptos básicos de estadística y del uso de R | Examen cierra | 17 ago 2026 | 23:58 |
