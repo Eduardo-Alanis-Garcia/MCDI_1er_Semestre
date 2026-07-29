@@ -2,6 +2,39 @@
 
 ## Sesiones
 
+| Materia | Fecha |
+|---------|-------|
+| [Manejo y procesamiento de la información](https://meet.google.com/cda-eswx-zyr) | [6 de agosto del 2026 a las 09:00 hrs., CDMX](https://meet.google.com/cda-eswx-zyr) |
+| [Análisis de algoritmos](https://meet.google.com/tsp-ztir-fib) | [12 de agosto del 2026 de 09:00 a 10:00 hrs., CDMX](https://meet.google.com/tsp-ztir-fib) |
+| [Estadística](https://meet.google.com/gqb-njgs-nzm) | [12 de agosto del 2026 de 17:00 a 18:00 hrs., CDMX](https://meet.google.com/gqb-njgs-nzm) |
+| [Matemáticas](https://meet.google.com/xzo-drge-wwm) | [13 de agosto del 2026 a las 09:00 hrs., CDMX](https://meet.google.com/xzo-drge-wwm) |
+| [Análisis de algoritmos](https://meet.google.com/tsp-ztir-fib) | [19 de agosto del 2026 de 09:00 a 10:00 hrs., CDMX](https://meet.google.com/tsp-ztir-fib) |
+| [Matemáticas](https://meet.google.com/xzo-drge-wwm) | [27 de agosto del 2026 a las 09:00 hrs., CDMX](https://meet.google.com/xzo-drge-wwm) |
+| [Manejo y procesamiento de la información](https://meet.google.com/cda-eswx-zyr) | [3 de septiembre del 2026 a las 10:00 hrs., CDMX](https://meet.google.com/cda-eswx-zyr) |
+| [Matemáticas](https://meet.google.com/xzo-drge-wwm) | [3 de septiembre del 2026 a las 09:00 hrs., CDMX](https://meet.google.com/xzo-drge-wwm) |
+| [Análisis de algoritmos](https://meet.google.com/tsp-ztir-fib) | [9 de septiembre del 2026 de 09:00 a 10:00 hrs., CDMX](https://meet.google.com/tsp-ztir-fib) |
+| [Estadística](https://meet.google.com/gqb-njgs-nzm) | [9 de septiembre del 2026 de 17:00 a 18:00 hrs., CDMX](https://meet.google.com/gqb-njgs-nzm) |
+| [Matemáticas](https://meet.google.com/xzo-drge-wwm) | [10 de septiembre del 2026 a las 09:00 hrs., CDMX](https://meet.google.com/xzo-drge-wwm) |
+| [Manejo y procesamiento de la información](https://meet.google.com/cda-eswx-zyr) | [17 de septiembre del 2026 a las 09:00 hrs., CDMX](https://meet.google.com/cda-eswx-zyr) |
+| [Análisis de algoritmos](https://meet.google.com/tsp-ztir-fib) | [23 de septiembre del 2026 de 09:00 a 10:00 hrs., CDMX](https://meet.google.com/tsp-ztir-fib) |
+| [Manejo y procesamiento de la información](https://meet.google.com/cda-eswx-zyr) | [24 de septiembre del 2026 a las 09:00 hrs., CDMX](https://meet.google.com/cda-eswx-zyr) |
+| [Matemáticas](https://meet.google.com/xzo-drge-wwm) | [1 de octubre del 2026 a las 09:00 hrs., CDMX](https://meet.google.com/xzo-drge-wwm) |
+| [Análisis de algoritmos](https://meet.google.com/tsp-ztir-fib) | [7 de octubre del 2026 de 09:00 a 10:00 hrs., CDMX](https://meet.google.com/tsp-ztir-fib) |
+| [Estadística](https://meet.google.com/gqb-njgs-nzm) | [7 de octubre del 2026 de 17:00 a 18:00 hrs., CDMX](https://meet.google.com/gqb-njgs-nzm) |
+| [Manejo y procesamiento de la información](https://meet.google.com/cda-eswx-zyr) | [8 de octubre del 2026 a las 09:00 hrs., CDMX](https://meet.google.com/cda-eswx-zyr) |
+| [Análisis de algoritmos](https://meet.google.com/tsp-ztir-fib) | [14 de octubre del 2026 de 09:00 a 10:00 hrs., CDMX](https://meet.google.com/tsp-ztir-fib) |
+| [Matemáticas](https://meet.google.com/xzo-drge-wwm) | [15 de octubre del 2026 a las 09:00 hrs., CDMX](https://meet.google.com/xzo-drge-wwm) |
+| [Manejo y procesamiento de la información](https://meet.google.com/cda-eswx-zyr) | [22 de octubre del 2026 a las 09:00 hrs., CDMX](https://meet.google.com/cda-eswx-zyr) |
+| [Análisis de algoritmos](https://meet.google.com/tsp-ztir-fib) | [28 de octubre del 2026 de 09:00 a 10:00 hrs., CDMX](https://meet.google.com/tsp-ztir-fib) |
+| [Análisis de algoritmos](https://meet.google.com/tsp-ztir-fib) | [4 de noviembre del 2026 de 09:00 a 10:00 hrs., CDMX](https://meet.google.com/tsp-ztir-fib) |
+| [Estadística](https://meet.google.com/gqb-njgs-nzm) | [4 de noviembre del 2026 de 17:00 a 18:00 hrs., CDMX](https://meet.google.com/gqb-njgs-nzm) |
+| [Matemáticas](https://meet.google.com/xzo-drge-wwm) | [5 de noviembre del 2026 a las 09:00 hrs., CDMX](https://meet.google.com/xzo-drge-wwm) |
+| [Manejo y procesamiento de la información](https://meet.google.com/cda-eswx-zyr) | [12 de noviembre del 2026 a las 09:00 hrs., CDMX](https://meet.google.com/cda-eswx-zyr) |
+| [Matemáticas](https://meet.google.com/xzo-drge-wwm) | [12 de noviembre del 2026 a las 18:00 hrs., CDMX](https://meet.google.com/xzo-drge-wwm) |
+| [Análisis de algoritmos](https://meet.google.com/tsp-ztir-fib) | [18 de noviembre del 2026 de 09:00 a 10:00 hrs., CDMX](https://meet.google.com/tsp-ztir-fib) |
+| [Matemáticas](https://meet.google.com/xzo-drge-wwm) | [19 de noviembre del 2026 a las 18:00 hrs., CDMX](https://meet.google.com/xzo-drge-wwm) |
+| [Análisis de algoritmos](https://meet.google.com/tsp-ztir-fib) | [25 de noviembre del 2026 de 09:00 a 10:00 hrs., CDMX](https://meet.google.com/tsp-ztir-fib) |
+| [Manejo y procesamiento de la información](https://meet.google.com/cda-eswx-zyr) | [26 de noviembre del 2026 a las 09:00 hrs., CDMX](https://meet.google.com/cda-eswx-zyr) |
 
 ## Actividades
 
