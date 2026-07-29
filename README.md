@@ -1,5 +1,13 @@
 # [Maestría en Ciencia de Datos e Información en INFOTEC, primer semestre (periodo 2026-2)](https://eduardo-alanis-garcia.github.io/MCDI_1er_Semestre/)
 
+## Materias
+
+- [Análisis de Algoritmos](https://eduardo-alanis-garcia.github.io/MCDI_1er_Semestre/Analisis%20de%20Algoritmos)
+- [Estadística](https://eduardo-alanis-garcia.github.io/MCDI_1er_Semestre/Estadistica)
+- [Manejo y Procesamiento de la Información](https://eduardo-alanis-garcia.github.io/MCDI_1er_Semestre/Manejo%20y%20procesamiento%20de%20la%20informacion)
+- [Matemáticas](https://eduardo-alanis-garcia.github.io/MCDI_1er_Semestre/Matematicas)
+
+
 ## Sesiones
 
 | Materia | Fecha |
