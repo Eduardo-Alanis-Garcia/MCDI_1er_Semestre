@@ -1,0 +1,16 @@
+Tengo un elemento HTML con información de actividades académicas. Quiero que extraigas y organices los siguientes datos:
+
+Unidad
+Actividad
+En caso de que la actividad sea una videoconferencia, agrega también el enlace de la sesión
+Fecha límite de entrega
+Puntaje asignado
+
+Genera la información en formato de tabla Markdown compatible con un archivo README.md, de manera que pueda copiar y pegar directamente el resultado sin realizar modificaciones adicionales.
+
+La tabla debe incluir encabezados claros y mantener una estructura ordenada y legible.
+
+
+
+
+Agrega el enlace de la sesion sobre la Actividad en dado caso que tenga y damelo en forma de README
