@@ -1,3 +1,7 @@
+# Estadistica
+
+## Agenda
+
 | Unidad | Actividad | Fecha límite de entrega | Puntaje |
 |--------|-----------|-------------------------|---------:|
 | Unidad 1 | [Videoconferencia](https://meet.google.com/gqb-njgs-nzm) | 12 de agosto del 2026, 17:00–18:00 hrs. (CDMX) | — |
