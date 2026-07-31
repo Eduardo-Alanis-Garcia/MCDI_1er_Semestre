@@ -1,8 +1,3 @@
-# Analisis de Algoritmos
-
-
-
-## Agenda
 | Unidad | Actividad | Fecha límite de entrega | Puntaje |
 |--------|-----------|-------------------------|:--------:|
 | Unidad 1 | [Videoconferencia](https://meet.google.com/tsp-ztir-fib) | 12 de agosto del 2026, 09:00–10:00 hrs. (CDMX) | — |
