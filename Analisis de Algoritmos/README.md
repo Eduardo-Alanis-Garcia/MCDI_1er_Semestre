@@ -1,5 +1,5 @@
 | Unidad | Actividad | Fecha límite de entrega | Puntaje |
-|--------|-----------|-------------------------|:--------:|
+|--------|-----------|-------------------------|---------:|
 | Unidad 1 | [Videoconferencia](https://meet.google.com/tsp-ztir-fib) | 12 de agosto del 2026, 09:00–10:00 hrs. (CDMX) | — |
 | Unidad 1 | [Videoconferencia](https://meet.google.com/tsp-ztir-fib) | 19 de agosto del 2026, 09:00–10:00 hrs. (CDMX) | — |
 | Unidad 1 | 1A. Reporte escrito. Experimentos y análisis | 26 de agosto del 2026 | 10 |
