@@ -1,0 +1,18 @@
+1. Lee y comprende de manera cuidadosa las notas de la U1, haciendo los ejercicios propuestos.
+
+2. Resuelve las actividades propuestas en la subsección Actividades de las notas de la Unidad 1.
+
+3. Escribe el reporte de las actividades tomando en cuenta las siguientes consideraciones
+
+a. Su trabajo se entregará en PDF y con el notebook fuente, así como cualquier archivo adicional, estos se entregarán en archivos separados.
+b. El código se debe documentar, así como mantener una estructura del documento que permita a un lector interesado entender el problema, sus experimentos y metodología, así como sus conclusiones.
+c. Tenga en cuenta que los notebooks pueden alternar celdas de texto y código.
+d, No olvide estructurar su reporte, en particular el reporte debe cubrir los siguientes puntos:
+Título del reporte, su nombre.
+Introducción.
+Actividad 1. Máquina de turing
+Actividad 2. Comparación de los órdenes de crecimiento.
+Nota: poner el código cercano a la presentación de resultados.
+Conclusiones
+Lista de referencias. Nota, una lista de referencias que no fueron utilizadas en el cuerpo del texto será interpretada como una lista vacía.
+4. Considera los criterios de evaluación.
