@@ -1,0 +1,22 @@
+Instrucciones:
+
+1. Revisa cuidadosamente las notas de la Unidad 2, apartado de Aprende.
+
+2. Revisa los ejercicios propuestos para mejorar tu entendimiento.
+
+3. Implementa y reproduce los códigos.
+
+4. Resuelve las actividades listadas en la subsección Actividades de las notas de la Unidad 2.
+
+5. Escribe el reporte de las actividades tomando en cuenta las siguientes consideraciones
+
+a. Su trabajo se entregará en PDF y con el notebook fuente, así como cualquier archivo adicional, estos se entregarán en archivos separados.
+b. El código se debe documentar, así como mantener una estructura del documento que permita a un lector interesado entender el problema, sus experimentos y metodología, así como sus conclusiones.
+c. Tenga en cuenta que los notebooks pueden alternar celdas de texto y código.
+d. No olvide estructurar su reporte, en particular el reporte debe cubrir los siguientes puntos:
+
+Título del reporte, su nombre.
+Introducción.
+Desarrollo de las actividades.
+Conclusiones
+Lista de referencias. Nota, una lista de referencias que no fueron utilizadas en el cuerpo del texto será interpretada como una lista vacía. 

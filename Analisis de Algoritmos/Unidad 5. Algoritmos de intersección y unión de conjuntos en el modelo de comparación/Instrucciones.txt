@@ -1,0 +1,28 @@
+1. Revisa cuidadosamente las notas de la Unidad 5.
+
+2. Revisa cuidadosamente los artículos que se listan en el apartado de Aprende. 
+
+An experimental investigation of set intersection algorithms for text searching.
+Faster Adaptive Set Intersections for Text Searching.
+Experimental Analysis of a Fast Intersection Algorithm for Sorted Sequences .
+A Fast Set Intersection Algorithm for Sorted Sequences.
+Adaptive intersection and t-threshold problems .
+Experiments on Adaptive Set Intersections for Text Retrieval Systems .
+Adaptive set intersections, unions, and differences.
+Optimal merging of 2 elements with n elements.
+
+3. Resuelve las actividades listadas en la subsección Actividades de la Unidad 5.
+
+4. Escribe el reporte de las Actividades tomando en cuenta las siguientes consideraciones:
+
+a. Su trabajo se entregará en PDF y con el notebook fuente, así como cualquier archivo adicional, estos se entregarán en archivos separados.
+b. El código se debe documentar, así como mantener una estructura del documento que permita a un lector interesado entender el problema, sus experimentos y metodología, así como sus conclusiones.
+c. Tenga en cuenta que los notebooks pueden alternar celdas de texto y código.
+d. No olvide estructurar su reporte, en particular el reporte debe cubrir los siguientes puntos:
+
+Título del reporte, su nombre.
+Introducción.
+Desarrollo de las actividades.
+Conclusiones
+Lista de referencias. Nota, una lista de referencias que no fueron utilizadas en el cuerpo del texto será interpretada como una lista vacía.
+5. Considera los criterios de evaluación.

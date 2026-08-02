@@ -1,0 +1,25 @@
+Instrucciones:
+
+1. Revisa cuidadosamente las notas de la Unidad 4.
+
+2. Revisa los artículos que se encuentran en el apartado de Aprende. 
+
+An almost optimal algorithm for unbounded searching. pp.82-87.
+Amortized analyses of self-organizing sequential search heuristics.  pp.404-411 .
+Skip lists: a probabilistic alternative to balanced trees. pp. 668-676.
+
+3. Resuelve las actividades listadas en la subsección Actividades de la Unidad 4.
+
+4. Escribe el reporte de las Actividades tomando en cuenta las siguientes consideraciones
+
+a. Su trabajo se entregará en PDF y con el notebook fuente, así como cualquier archivo adicional, estos se entregarán en archivos separados.
+b. El código se debe documentar, así como mantener una estructura del documento que permita a un lector interesado entender el problema, sus experimentos y metodología, así como sus conclusiones.
+c. Tenga en cuenta que los notebooks pueden alternar celdas de texto y código.
+d. No olvide estructurar su reporte, en particular el reporte debe cubrir los siguientes puntos:
+
+Título del reporte, su nombre.
+Introducción.
+Desarrollo de las actividades.
+Conclusiones
+Lista de referencias. Nota, una lista de referencias que no fueron utilizadas en el cuerpo del texto será interpretada como una lista vacía.
+5. Considera los criterios de evaluación.
