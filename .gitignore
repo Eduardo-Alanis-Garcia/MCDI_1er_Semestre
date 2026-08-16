@@ -11,6 +11,10 @@
 .RDataTmp3
 .RDataTmp4
 .RDataTmp5
+.RDataTmp6
+.RDataTmp7
+.RDataTmp8
+.RDataTmp9
 
 # R environment and config (often contain secrets)
 .Renviron
@@ -18,3 +22,4 @@
 .Renviron.*.local
 .Rprofile
 .Rprofile.local
+.Rproj.user

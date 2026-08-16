@@ -1,0 +1,19 @@
+Práctica 1A: Cálculo de frecuencias a nivel de un carácter
+ 
+Crea un notebook para preprocesar el texto y convertirlo a minúsculas, quita acentos y los siguientes caracteres:
+
+“;:,.\-"‘/()[]¿?¡!{}~<>|«»-—’”
+
+Reemplaza las tabulaciones y saltos de línea con un espacio.
+
+Calcula las frecuencias a nivel de un carácter, de los documentos text_1.txt al text_5.txt y genera los histogramas para cada archivo. Para generar las gráficas, ordena los caracteres de acuerdo a su frecuencia, de mayor a menor frecuencia en el histograma. Repite lo mismo para libro_1.txt y libro_2.txt
+Los archivos son:
+
+text_1.txt
+text_2.txt
+text_3.txt
+text_4.txt
+text_5.txt
+libro_1.txt
+libro_2.txt
+Contesta la evaluación de esta práctica en el Aula Virtual

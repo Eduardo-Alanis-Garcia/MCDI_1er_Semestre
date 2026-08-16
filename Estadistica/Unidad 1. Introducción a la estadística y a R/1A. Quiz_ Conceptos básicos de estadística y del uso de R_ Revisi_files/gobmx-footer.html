@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!-- saved from url=(0067)https://aulavirtual.infotec.mx/theme/moove/assets/gobmx-footer.html -->
+<html lang="es" class="js svg wf-montserrat-i3-active wf-montserrat-i4-active wf-montserrat-n4-active wf-montserrat-n3-active wf-montserrat-n6-active wf-montserrat-n7-active wf-active"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--<base target="_blank">--><base href="." target="_blank">
+    <link href="./main.css" rel="stylesheet">
+
+    <style>
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden;
+        }
+
+        header,
+        .navbar-gobmx {
+            display: none !important;
+        }
+
+        body {
+            background: transparent;
+        }
+
+        footer.main-footer {
+            margin: 0 !important;
+        }
+    </style>
+<script src="./webfont.js.descarga" type="text/javascript" async=""></script><script type="text/javascript" src="./modernizr.js.descarga"></script><script type="text/javascript" src="./pace.min.js.descarga"></script><script type="text/javascript" src="./jquery.js.descarga"></script><link rel="stylesheet" href="./css" media="all"><script type="text/javascript" src="./jquery-ui-datepicker.js.descarga"></script></head>
+<body class="  pace-done" style="margin-top: 70px;"><header><nav class="navbar navbar-expand-md navbar-dark bg-light navbar-inverse navbar-fixed-top"><div class="container"><a href="https://www.gob.mx/" target="_blank" class="navbar-brand"><img src="./logo_blanco.svg" alt="P&amp;aacutegina de inicio, Gobierno de M&amp;eacutexico" class="logos" style="height: 46px;width: auto;"></a> <button class="navbar-toggler navbar-toggler-button" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor03" aria-controls="navbarColor03" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button><div class="collapse navbar-collapse" id="navbarColor03"><div class="navbar-nav nav-pills margen"><a class="nav-item nav-link" href="https://www.gob.mx/tramites" target="_self" title="Ir a tr&amp;aacutemites del gobierno">Trámites</a><a class="nav-item nav-link" href="https://www.gob.mx/gobierno" target="_self" title="Ir a gobierno">Gobierno</a><a class="nav-item nav-link" href="https://www.gob.mx/busqueda" target="_self" title="Haz búsquedas en gobierno"><i class="icon-search"></i></a></div></div></div></nav></header><div class="pace  pace-inactive"><div class="pace-progress" data-progress-text="100%" data-progress="99" style="transform: translate3d(100%, 0px, 0px);">
+  <div class="pace-progress-inner"></div>
+</div>
+<div class="pace-activity"></div></div>
+    <nav class="navbar-gobmx"></nav>
+
+    <script src="./gobmx.js.descarga"></script>
+
+    <script>
+    (function () {
+        function getHeight() {
+            const body = document.body;
+            const html = document.documentElement;
+
+            return Math.max(
+                body ? body.scrollHeight : 0,
+                body ? body.offsetHeight : 0,
+                html ? html.scrollHeight : 0,
+                html ? html.offsetHeight : 0
+            );
+        }
+
+        function sendHeight() {
+            const height = getHeight();
+            parent.postMessage({
+                type: 'gobmx-footer-resize',
+                height: height
+            }, '*');
+        }
+
+        function sendHeightDelayed() {
+            sendHeight();
+            setTimeout(sendHeight, 100);
+            setTimeout(sendHeight, 250);
+            setTimeout(sendHeight, 500);
+        }
+
+        window.addEventListener('load', sendHeightDelayed);
+        window.addEventListener('resize', sendHeightDelayed);
+
+        document.addEventListener('click', function () {
+            sendHeightDelayed();
+        });
+
+        document.addEventListener('change', function () {
+            sendHeightDelayed();
+        });
+
+        document.addEventListener('transitionend', function () {
+            sendHeightDelayed();
+        });
+
+        const observer = new MutationObserver(sendHeightDelayed);
+        observer.observe(document.documentElement, {
+            subtree: true,
+            childList: true,
+            attributes: true,
+            characterData: true
+        });
+
+        if (window.ResizeObserver) {
+            const resizeObserver = new ResizeObserver(sendHeightDelayed);
+            resizeObserver.observe(document.body);
+        }
+
+        setInterval(sendHeight, 1000);
+    })();
+    </script>
+
+<script type="text/javascript" src="./bootstrap.bundle.js.descarga"></script><script type="text/javascript" src="./main.js.descarga"></script><script type="text/javascript" src="./core@1.6.9"></script><script type="text/javascript" src="./dom@1.6.13"></script><footer class="main-footer "><div class=""><div class="container"><div class="bottom-buffer-footer row"><div class="col-sm-3 logo-footer"><img src="./logo_blanco.svg" href="/" alt="logo gobierno de méxico" class="logo_footer" style="max-width: 50%;"></div> <div class="accordion col-sm-3">            <input id="toggle1" type="checkbox" class="accordion-toggle" name="toggle">            <label for="toggle1"> <h5>Enlaces</h5></label>            <section><div class="" style="padding-left: 0px;"><ul class="nav-list"><li><a href="https://data.buengobierno.gob.mx/" target="_blank" rel="noopener" title="Enlace abre en ventana nueva">Datos abiertos de la SABG</a></li><li><a href="http://www.ordenjuridico.gob.mx/" target="_blank" rel="noopener" title="Enlace abre en ventana nueva">Marco Jurídico</a></li><li><a href="https://consultapublicamx.plataformadetransparencia.org.mx/vut-web/faces/view/consultaPublica.xhtml#inicio" target="_blank" rel="noopener" title="Enlace abre en ventana nueva">Plataforma Nacional de Transparencia</a></li><li><a href="https://transparencia.gob.mx/" target="_blank" rel="noopener" title="Enlace abre en ventana nueva">Transparencia para el pueblo</a></li><li><a href="https://alertadores.buengobierno.gob.mx/" target="_blank" rel="noopener" title="Enlace abre en ventana nueva">Alerta</a></li></ul></div></section>      </div> <div class="accordion col-sm-3">            <input id="toggle2" type="checkbox" class="accordion-toggle" name="toggle">            <label for="toggle2"> <h5>¿Qué es gob.mx?</h5></label>            <section><div class=""><p>Es el portal único de trámites, información y participación ciudadana. <a href="https://www.gob.mx/que-es-gobmx">Leer más</a></p><ul class="nav-list"><li><a href="https://datos.gob.mx/" target="_blank">Portal de datos abiertos</a></li><li><a href="https://www.gob.mx/accesibilidad" target="_blank">Declaración de accesibilidad</a></li><li><a href="https://www.gob.mx/terminos" target="_blank">Términos y Condiciones</a></li></ul></div> </section>      </div><div class="title col-sm-3"><h5 class="link-a"><a class="footer" id="SIDEC" href="https://sidec.buengobierno.gob.mx/#!/" target="_blank" rel="sidec">Denuncia contra servidores públicos</a></h5>
+<span class="col-xs-5 col-sm-12 col-md-11 social-media">Síguenos en</span><ul class="col-xs-7 col-sm-12 col-md-11 list-inline social-media"><li><a data-v-6b1f797a="" id="Facebook" href="https://www.facebook.com/gobmexico" target="_blank" rel="noopener" title="enlace a facebook abre en una nueva ventana" class="sendEst share-info footer"><img alt="Facebook" src="./facebook.png"></a></li><li style="margin-left: 2px; margin-right: 2px;"><a data-v-6b1f797a="" id="Twitter" href="https://twitter.com/GobiernoMX" target="_blank" rel="noopener" title="Enlace a twitter abre en una nueva ventana" class="sendEst share-info footer"><img alt="Twitter" src="./twitter.png"></a></li><li style="margin-left: 2px; margin-right: 5px;"><a data-v-6b1f797a="" id="Instagram" href="https://www.instagram.com/gobmexico/" target="_blank" rel="noopener" title="Enlace a instagram abre en una nueva ventana" class="sendEst share-info footer"><img alt="Instagram" src="./instagram.png"></a></li><li style="margin-left: 2px; margin-right: 2px;"><a data-v-6b1f797a="" id="Youtube" href="https://www.youtube.com/@gobiernodemexico" target="_blank" rel="noopener" title="Enlace a youtube abre en una nueva ventana" class="sendEst share-info footer"><img alt="Youtube" src="./youtube.png"></a></li></ul> <ul class="list-inline">
+            <li>
+              <div class="logo-079">
+              <a href="tel:+079" target="_blank">                <img src="./079.png" href="/" alt="logo 079" class="logo-079">
+</a>              </div>
+            </li>
+          </ul></div></div></div></div></footer><div id="snd-modal-overlay" style="display: none;">
+  <div id="snd-modal-box">
+    <button id="snd-modal-close">×</button>
+    <div id="snd-modal-icon">i</div>
+    <h2>Aviso importante</h2>
+    <p>
+      Todas las plataformas digitales del Gobierno de México deben seguir los lineamientos establecidos en el 
+      <strong>Sistema Nacional de Diseño (SND)</strong>. Si tu implementación se desarrolla con la Gráfica base 
+      (v.1, v.2 o v.3), es necesario que migres a este nuevo estándar a la brevedad.
+    </p>
+    <a href="https://www.snd.gob.mx/" target="_blank" id="snd-modal-link">Visitar SND</a>
+  </div>
+</div></body></html>
