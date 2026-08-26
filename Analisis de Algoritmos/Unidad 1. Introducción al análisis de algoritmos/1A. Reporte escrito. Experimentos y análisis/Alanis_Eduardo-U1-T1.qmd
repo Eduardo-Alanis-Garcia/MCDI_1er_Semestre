@@ -1,0 +1,324 @@
+---
+title: "1A. Reporte escrito. Experimentos y análisis."
+subtitle: "Actividad 1.7 - Capítulo 2: Análisis de algoritmos con Julia"
+author: "Eduardo Alanís García"
+lang: es-MX
+engine: julia
+julia:
+  exeflags: ["+1.10"]
+format:
+  html:
+    toc: true
+    number-sections: true
+  pdf:
+    toc: true
+    number-sections: true
+bibliography: references.bib
+---
+
+```{julia}
+#| echo: false
+#| label: setup
+#| output: false
+
+using Plots, LaTeXStrings, BenchmarkTools, DataFrames, StatsBase, Test, Printf
+gr()
+ENV["GKSwstype"] = "100"
+```
+
+# Instrucciones:
+
+1.  Considere dos estructuras para representar un mapa de enteros (`Int64`) a flotantes (`Float64`), sin llaves repetidas:
+
+    - Un vector de pares sin ordenar (e.g., `Vector{Pair{Int64,Float64}}`), donde toda operación recorre linealmente el vector.
+
+    - Un `Dict{Int64,Float64}`, la tabla hash nativa de Julia.
+
+    Implemente, para ambas estructuras, las operaciones `buscar`, `insertar!` y `borrar!` con la misma semántica de mapa (a lo más un valor por llave).
+
+    **Restricción importante:** `insertar!` y `borrar!` sobre el vector deben implementarse sin modificar el tamaño (longitud) del arreglo, es decir, sin usar `push!`, `pop!`, `deleteat!` ni operaciones equivalentes que provoquen realojamiento o desplazamiento de memoria. Esto aísla el efecto que se quiere medir (costo del recorrido y localidad de referencia) del efecto de las políticas de crecimiento dinámico de arreglos. Para lograrlo:
+
+    - Reserve el vector con una capacidad fija desde el inicio (la máxima que va a usar en el experimento).
+
+    - Use un valor centinela (e.g., una llave reservada que nunca aparezca en los datos) para marcar las posiciones lógicamente “vacías”, o use un contador de elementos ocupados (añadiendo la lógica necesaria para llevar a cabo las operaciones).
+
+    - `borrar!` sobrescribe la posición encontrada con el centinela; `insertar!` busca primero la llave (para actualizar) y, si no existe, busca una posición marcada como vacía para colocar el nuevo par; ambas búsquedas son recorridos lineales, nunca hay cambio de tamaño del arreglo.
+
+2.  Mida con `@benchmark` el tiempo de cada operación (`buscar`, `insertar!`, `borrar!`) para creciente (potencias de 2 desde hasta el máximo práctico en su equipo), con la estructura ya poblada con pares aleatorios antes de medir. Para `buscar` y `borrar!` la llave a consultar debe elegirse aleatoriamente dentro del `setup=` de cada muestra (no fija), para capturar el caso promedio y no solo el mejor o peor caso posicional. Aplique el mismo cuidado del lado del `Dict` (considere `sizehint!` para controlar el efecto de *rehash* al crecer).
+
+3.  Para cada una de las tres operaciones, determine el o los rangos de donde el vector es más rápido que el diccionario, y viceversa. Reporte con gráficas tiempo-vs- (escala log-log recomendada) y/o tablas.
+
+4.  Discuta sus resultados en términos de localidad de referencia (fallos de caché por saltos de puntero en el diccionario vs. recorrido contiguo en el vector) y el costo de calcular el hash y resolver colisiones.
+
+```{julia}
+#| label: vector-mapa
+
+const CENTINELA = typemin(Int64)  # llave reservada; nunca es una llave real
+
+"""
+    crear_vector_mapa(capacidad)
+
+Crea un vector de pares de tamaño fijo `capacidad`, con todas las
+posiciones marcadas como "vacías" mediante la llave centinela.
+"""
+
+
+### Bien
+function crear_vector_mapa(capacidad::Int)    #Equivalente a R a capacidad |> as.integer()
+    return Vector{Pair{Int64,Float64}}([CENTINELA => 0.0 for i in 1:capacidad])
+end
+
+"""
+    buscar_vec(v, k)
+
+Recorre linealmente `v` buscando la llave `k`. Devuelve el índice si la
+encuentra, o -1 si no está presente. Costo O(n) en el peor caso.
+"""
+function buscar_vec(v::Vector{Pair{Int64,Float64}}, k::Int64)
+    for i in eachindex(v)    #eachindex se tomo de ejemplo de "1.7 Definición de estructuras"
+        if v[i].first == k
+            return i
+        end
+    end
+    return -1 # No esta
+end
+
+"""
+    insertar_vec!(v, k, val)
+
+Si la llave `k` ya existe, actualiza su valor. Si no existe, busca la
+primera posición marcada con el centinela y coloca ahí el nuevo par.
+La longitud de `v` nunca cambia.
+"""
+function insertar_vec!(v::Vector{Pair{Int64,Float64}}, k::Int64, val::Float64)
+    pos = buscar_vec(v, k)
+    if pos != -1           # Busca primero la llave (para actualizar)
+        v[pos] = k => val
+        return true
+    end
+    pos_vacia = buscar_vec(v, CENTINELA)
+    if pos_vacia != -1      # Busca una posición marcada como vacía para colocar el nuevo pa
+        v[pos_vacia] = k => val
+        return true
+    end
+    return false             # No encontro posicion y tampoco habia vacio
+end
+
+"""
+    borrar_vec!(v, k)
+
+Busca la llave `k`; si existe, sobrescribe esa posición con el centinela.
+No reduce la longitud de `v`.
+"""
+function borrar_vec!(v::Vector{Pair{Int64,Float64}}, k::Int64)
+    pos = buscar_vec(v, k)
+    if pos != -1
+        v[pos] = CENTINELA => 0.0
+        return true
+    end
+    return false     # No existia la posicion
+end
+```
+
+## Mapa basado en `Dict`
+
+```{julia}
+#| label: dict-mapa
+
+"""
+    crear_dict_mapa(capacidad)
+
+Crea un Dict vacío reservando espacio con sizehint! para evitar que el
+benchmark incluya el costo de rehash al ir creciendo la tabla.
+"""
+function crear_dict_mapa(capacidad::Int)
+    d = Dict{Int64,Float64}()
+    sizehint!(d, capacidad)
+    return d
+end
+
+buscar_dict(d::Dict{Int64,Float64}, k::Int64) = get(d, k, nothing)
+
+function insertar_dict!(d::Dict{Int64,Float64}, k::Int64, val::Float64)
+    d[k] = val
+    return true
+end
+
+function borrar_dict!(d::Dict{Int64,Float64}, k::Int64)
+    if haskey(d, k)
+        delete!(d, k)
+        return true
+    end
+    return false
+end
+```
+
+## Función auxiliar para poblar las estructuras
+
+```{julia}
+#| label: poblar
+
+"""
+    poblar!(estructura, tipo, n; rango_llaves = 1:10n)
+
+Llena `estructura` con `n` pares (llave, valor) aleatorios y únicos.
+`tipo` es :vector o :dict y determina qué función insertar! se usa.
+Devuelve el vector de llaves insertadas, útil para elegir llaves
+existentes al momento de medir buscar/borrar!.
+"""
+function poblar!(estructura, tipo::Symbol, n::Int; rango_llaves = 1:10n)
+    llaves = Set{Int64}()
+    while length(llaves) < n
+        push!(llaves, rand(rango_llaves))
+    end
+    for k in llaves
+        v = rand()
+        tipo === :vector ? insertar_vec!(estructura, Int64(k), v) :
+                            insertar_dict!(estructura, Int64(k), v)
+    end
+    return collect(llaves)
+end
+```
+
+## Verificación de correctitud
+
+Antes de medir tiempos es indispensable confirmar que ambas implementaciones respetan la semántica de mapa y que el vector nunca cambia de tamaño.
+
+```{julia}
+#| label: pruebas-correctitud
+
+@testset "Semántica de mapa" begin
+    v = crear_vector_mapa(10)
+    d = crear_dict_mapa(10)
+
+    @test insertar_vec!(v, 5, 3.14) == true
+    @test insertar_vec!(v, 5, 2.71) == true       # actualización, no duplicado
+    @test buscar_vec(v, 5) != -1
+    @test borrar_vec!(v, 5) == true
+    @test borrar_vec!(v, 5) == false               # ya no existe
+
+    @test insertar_dict!(d, 5, 3.14) == true
+    @test insertar_dict!(d, 5, 2.71) == true
+    @test buscar_dict(d, 5) !== nothing
+    @test borrar_dict!(d, 5) == true
+    @test borrar_dict!(d, 5) == false
+
+    @test length(v) == 10   # el vector nunca cambia de tamaño
+end
+```
+
+# Experimentación
+
+Se midieron las tres operaciones (`buscar`, `insertar!`, `borrar!`) para ambas estructuras, con $n$ en potencias de 2 desde $2^2$ hasta el máximo práctico soportado por el equipo utilizado. Para `insertar!` y `borrar!` se usó una copia de la estructura base en cada muestra, de forma que la operación siempre partiera del mismo estado.
+
+```{julia}
+#| label: benchmark
+#| eval: false
+#| output: false
+
+# NOTA: este bloque tiene eval: false porque el tiempo de ejecución
+# completo puede ser considerable. Cambiar a eval: true (o quitar la
+# línea) para correrlo y generar los resultados reales.
+
+tamanos = [2^k for k in 2:16]  # ajustar el límite superior según el equipo
+
+resultados = Dict{Symbol, Dict{Symbol, Vector{Float64}}}(
+    :vector => Dict(:buscar => Float64[], :insertar => Float64[], :borrar => Float64[]),
+    :dict   => Dict(:buscar => Float64[], :insertar => Float64[], :borrar => Float64[]),
+)
+
+for n in tamanos
+    # --- Vector ---
+    v_base = crear_vector_mapa(n)
+    llaves_v = poblar!(v_base, :vector, n)
+
+    b_buscar = @benchmark buscar_vec($v_base, k) setup=(k = rand($llaves_v)) samples=200 seconds=2
+    push!(resultados[:vector][:buscar], median(b_buscar).time)
+
+    b_insertar = @benchmark insertar_vec!(v, k, 1.0) setup=(v = deepcopy($v_base); k = rand(1:10n)) samples=100 seconds=2
+    push!(resultados[:vector][:insertar], median(b_insertar).time)
+
+    b_borrar = @benchmark borrar_vec!(v, k) setup=(v = deepcopy($v_base); k = rand($llaves_v)) samples=100 seconds=2
+    push!(resultados[:vector][:borrar], median(b_borrar).time)
+
+    # --- Dict ---
+    d_base = crear_dict_mapa(n)
+    llaves_d = poblar!(d_base, :dict, n)
+
+    b_buscar_d = @benchmark buscar_dict($d_base, k) setup=(k = rand($llaves_d)) samples=200 seconds=2
+    push!(resultados[:dict][:buscar], median(b_buscar_d).time)
+
+    b_insertar_d = @benchmark insertar_dict!(d, k, 1.0) setup=(d = deepcopy($d_base); k = rand(1:10n)) samples=100 seconds=2
+    push!(resultados[:dict][:insertar], median(b_insertar_d).time)
+
+    b_borrar_d = @benchmark borrar_dict!(d, k) setup=(d = deepcopy($d_base); k = rand($llaves_d)) samples=100 seconds=2
+    push!(resultados[:dict][:borrar], median(b_borrar_d).time)
+
+    @printf("n=%d listo\n", n)
+end
+```
+
+```{julia}
+#| label: tabla-resultados
+#| eval: false
+
+df = DataFrame(
+    n = tamanos,
+    vector_buscar   = resultados[:vector][:buscar],
+    vector_insertar = resultados[:vector][:insertar],
+    vector_borrar   = resultados[:vector][:borrar],
+    dict_buscar     = resultados[:dict][:buscar],
+    dict_insertar   = resultados[:dict][:insertar],
+    dict_borrar     = resultados[:dict][:borrar],
+)
+df
+```
+
+```{julia}
+#| label: graficas
+#| eval: false
+
+for (op, titulo) in [(:buscar, "buscar"), (:insertar, "insertar!"), (:borrar, "borrar!")]
+    plot(tamanos, resultados[:vector][op], xscale=:log10, yscale=:log10,
+         marker=:circle, label="Vector", xlabel="n (elementos)",
+         ylabel="tiempo (ns)", title="Costo de $titulo: Vector vs. Dict")
+    plot!(tamanos, resultados[:dict][op], marker=:square, label="Dict")
+    savefig("costo_$op.png")
+end
+```
+
+> **Nota para quien complete este reporte:** los bloques anteriores tienen `eval: false` para no alargar la compilación del documento de ejemplo. Cambia esa opción a `true` (o elimínala), corre el notebook completo en tu equipo, y sustituye esta nota por la tabla y las tres gráficas generadas, junto con una descripción de las condiciones del equipo utilizado (CPU, RAM, sistema operativo, versión de Julia) — esa información es necesaria porque los resultados de un benchmark de bajo nivel dependen del hardware.
+
+# Resultados y análisis
+
+*(Esta sección debe completarse con las gráficas y tabla generadas al correr el bloque de experimentación. Es la sección de mayor peso en la rúbrica y debe ser, en extensión, la más desarrollada del reporte.)*
+
+Con base en el comportamiento esperado según la teoría revisada en el capítulo 2 del curso [@algoir]:
+
+- Para `buscar`, se espera que el `Dict` mantenga un tiempo prácticamente constante al crecer $n$, mientras que el vector crezca de forma aproximadamente lineal. Para valores muy pequeños de $n$ (por ejemplo, $n=4$ u $8$), es plausible que el vector iguale o incluso supere al `Dict`, ya que el costo fijo de calcular un hash puede superar el costo de comparar unos pocos enteros almacenados de forma contigua en memoria.
+- Para `insertar!` se espera un patrón similar, dado que la implementación del vector requiere primero un recorrido lineal para verificar si la llave ya existe.
+- Para `borrar!` se espera igualmente un patrón análogo al de `buscar`, ya que ambas operaciones dependen de localizar primero la llave.
+
+*(Sustituir el párrafo anterior por la descripción de lo efectivamente observado en las gráficas propias, indicando explícitamente el rango de* $n$ en el que cada estructura resultó más rápida para cada operación.)
+
+# Discusión
+
+Los resultados esperados —y los que deben confirmarse experimentalmente en la sección anterior— se explican por dos factores no capturados por el análisis asintótico puro:
+
+**Localidad de referencia.** Un `Vector{Pair{Int64,Float64}}` almacena sus elementos de forma contigua en memoria. Cuando la CPU carga una línea de caché (típicamente 64 bytes), trae de una vez varios pares consecutivos, de modo que recorrer el vector secuencialmente resulta muy económico para $n$ pequeño, pues buena parte —o la totalidad— del vector puede residir en la caché L1/L2 del procesador. En contraste, un `Dict` distribuye sus entradas según el valor calculado por la función hash, no según el orden de inserción; acceder a una entrada puede implicar saltar a una posición distante en memoria, generando un fallo de caché por cada acceso, incluso si la tabla completa es de tamaño reducido.
+
+**Costo de calcular el hash y resolver colisiones.** El `Dict` de Julia utiliza direccionamiento abierto (*open addressing*); ante colisiones debe sondear posiciones adicionales, lo que agrega un costo variable no capturado por la cota $O(1)$ "promedio" del análisis asintótico. Para $n$ muy pequeño, este costo fijo de hashing puede dominar sobre el beneficio teórico del acceso directo.
+
+En conjunto, ambos factores explican por qué el análisis asintótico —que describe el comportamiento cuando $n \to \infty$— no es suficiente para decidir qué estructura usar cuando los mapas son pequeños: las constantes ocultas por la notación $O(\cdot)$ (costo de hashing, patrones de acceso a memoria) pueden hacer que la estructura teóricamente "peor" (el vector, $O(n)$) sea, en la práctica, la más conveniente. Esto ilustra precisamente la importancia del enfoque experimental discutido en el capítulo 2 del curso [@algoir].
+
+# Conclusiones
+
+- Se implementaron dos representaciones de mapa con la misma semántica (`buscar`, `insertar!`, `borrar!`), respetando la restricción de que el vector nunca cambie de tamaño mediante el uso de un valor centinela.
+- El análisis asintótico predice que el `Dict` domina al vector para $n$ grande, pero la evidencia experimental *(completar con los resultados propios)* muestra que existe un rango de $n$ pequeño donde el vector es competitivo o superior, debido a su mejor localidad de referencia.
+- La elección de estructura de datos para mapas pequeños no debe basarse únicamente en la notación asintótica; el enfoque experimental es necesario para tomar decisiones informadas en escenarios reales de tamaño acotado.
+- Como trabajo futuro, sería interesante repetir el experimento variando el tipo de dato de la llave (por ejemplo, cadenas de texto en lugar de enteros), lo que modificaría el costo relativo de calcular el hash.
+
+# Referencias
+
+::: {#refs}
+:::
