@@ -14,6 +14,11 @@ jupyter: julia-1.11
 
 # Actividad 1. Vector vs. diccionario para mapas pequeños
 
+# Introcudcción
+
+Pendiente de pendiente de la recta pendiente
+
+
 # Instrucciones:
 
 1.  Considere dos estructuras para representar un mapa de enteros (`Int64`) a flotantes (`Float64`), sin llaves repetidas:
@@ -44,7 +49,6 @@ Se utilizará una llave que no forme parte de los datos reales:
 
 ```{julia}
 CENTINELA  = typemin(Int64)
-centinela = typemin(Int64)
 ```
 
 Las llaves utilizadas en el experimento estarán entre `1` y `n`, por lo que esta llave puede utilizarse para identificar posiciones vacías.
@@ -157,14 +161,14 @@ end
 Para cada tamaño `n` se crean ambas estructuras con los mismos datos.
 
 ```{julia}
-function preparar_datos(n)
+function preparar_datos(n, capacidad_vector = n)
 
     # Porque es posible usar n + 1
-    v = crear_vector(n)
+    v = crear_vector(capacidad_vector)
     d = crear_dict_mapa(n)
     llaves = collect(Int64(1):Int64(n))  
 
-    shuffle!(llaves) # Desordena de forma aleatoria, por la indicacion la llave a consultar debe elegirse aleatoriamente dentro del setup=
+    shuffle!(llaves) # Desordena de forma aleatoria, por la indicacion la llave a consultar debe elegirse aleatoriamente dentro del setup= de cada muestra (no fija), para capturar el caso promedio y no solo el mejor o peor caso posicional
     valores = rand(n)
 
     for i in 1:n
@@ -176,36 +180,16 @@ function preparar_datos(n)
 end
 ```
 
-# 8. Tamaños utilizados
 
-La actividad solicita utilizar potencias de 2 empezando con `2^2` y continuar hasta el máximo práctico que permita el equipo.
-
-```{julia}
-tamaños = 2 .^ (2:16)
-tamaños
-```
-
-Los tamaños iniciales son:
-
-``` text
-4, 8, 16, 32, 64, 128, 256, 512,
-1024, 2048, 4096, 8192, 16384, 32768, 65536
-```
-
-El límite final puede aumentarse o reducirse según la memoria y el tiempo disponible en el equipo.
 
 # 9. Experimento: `buscar`
-
-## 9.1 Vector
-
-La llave se genera aleatoriamente dentro de `setup` para aproximar el caso promedio.
 
 ```{julia}
 using BenchmarkTools
 using Random
+
+tamaños = 2 .^ (2:8)   # (potencias de 2 desde hasta el máximo práctico en su equipo)
 ```
-
-
 
 ```{julia}
 resultados_buscar_vector = []
@@ -222,20 +206,40 @@ for n in tamaños
         llave = rand(Int64(1):Int64($n))
     ) samples=100
 
-    push!(resultados_buscar_vector, resultado_vector)
-    push!(resultados_buscar_dict, resultado_dict)
+    push!(resultados_buscar_vector, 
+    (
+        n = n,
+        trial = resultado_vector,
+        minimo = minimum(resultado_vector).time,
+        medio = mean(resultado_vector).time,
+        maximo = maximum(resultado_vector).time
+    )
+    )
+    push!(resultados_buscar_dict, 
+    (
+        n = n,
+        trial = resultado_dict,
+        minimo = minimum(resultado_dict).time,
+        medio = mean(resultado_dict).time,
+        maximo = maximum(resultado_dict).time
+    )
+    )
 end
 
-(resultados_buscar_vector, resultados_buscar_dict)
+resultados_buscar_vector, 
+resultados_buscar_dict
 ```
 
 
+```{julia}
+resultados_buscar_vector
+```
+
+```{julia}
+resultados_buscar_dict
+```
 
 # 10. Experimento: `borrar!`
-
-La operación modifica la estructura. Por eso se realiza una copia en `setup`.
-
-## 10.1 Vector
 
 ```{julia}
 resultados_borrar_vector = []
@@ -248,18 +252,38 @@ for n in tamaños
         llave = rand(Int64(1):Int64($n))
     ) samples=100
 
-    push!(resultados_borrar_vector, resultado_vector)
+    push!(resultados_borrar_vector, 
+    (
+        n = n,
+        trial = resultado_vector,
+        minimo = minimum(resultado_vector).time,
+        medio = mean(resultado_vector).time,
+        maximo = maximum(resultado_vector).time
+    )
+    )
 
     resultado_dict = @benchmark borrar_dict!($d, llave) setup=(
         llave = rand(Int64(1):Int64($n))
     ) samples=100
 
-    push!(resultados_borrar_dict, resultado_dict)
+    push!(resultados_borrar_dict, 
+    (
+        n = n,
+        trial = resultado_dict,
+        minimo = minimum(resultado_dict).time,
+        medio = mean(resultado_dict).time,
+        maximo = maximum(resultado_dict).time
+    )
+    )
 end
+```
 
+```{julia}
 resultados_borrar_vector
-resultados_borrar_dict
+```
 
+```{julia}
+resultados_borrar_dict
 ```
 
 # 11. Experimento: `insertar!`
@@ -274,71 +298,162 @@ resultados_insertar_vector = []
 resultados_insertar_dict = []
 
 for n in tamaños
-    v, d = preparar_datos(n)
+    v, d = preparar_datos(n, n + 1)
 
-    resultado_vector = @benchmark insertar_vector!(v, nueva_llave, 1.0) setup=(
+    resultado_vector = @benchmark insertar_vector!($v, nueva_llave, 1.0) setup=(
         nueva_llave = Int64($n + 1)
     ) samples=100
 
-    resultado_dict = @benchmark insertar_dict!(d, nueva_llave, 1.0) setup=(
+    resultado_dict = @benchmark insertar_dict!($d, nueva_llave, 1.0) setup=(
         nueva_llave = Int64($n + 1)
     ) samples=100
 
-    push!(resultados_insertar_vector, resultado_vector)
-    push!(resultados_insertar_dict, resultado_dict)
+    push!(resultados_insertar_vector, 
+    (
+        n = n,
+        trial = resultado_vector,
+        minimo = minimum(resultado_vector).time,
+        medio = mean(resultado_vector).time,
+        maximo = maximum(resultado_vector).time
+    )
+    )
+    push!(resultados_insertar_dict, 
+    (
+        n = n,
+        trial = resultado_dict,
+        minimo = minimum(resultado_dict).time,
+        medio = mean(resultado_dict).time,
+        maximo = maximum(resultado_dict).time
+    )
+    )
 end
+```
 
-resultados_insertar_vector, resultados_insertar_dict
+```{julia}
+resultados_insertar_vector
+```
+
+```{julia}
+resultados_insertar_dict
 ```
 
 # 12. Presentación de los resultados
 
-Los resultados reales deben obtenerse ejecutando el notebook en Julia. No se deben inventar tiempos de ejecución.
-
 ## 12.1 Buscar
 
-|  `n` |   Vector |   `Dict` | Más rápido |
-|-----:|---------:|---------:|:-----------|
-|    4 | Ejecutar | Ejecutar | Determinar |
-|    8 | Ejecutar | Ejecutar | Determinar |
-|   16 | Ejecutar | Ejecutar | Determinar |
-|   32 | Ejecutar | Ejecutar | Determinar |
-|   64 | Ejecutar | Ejecutar | Determinar |
-|  128 | Ejecutar | Ejecutar | Determinar |
-|  256 | Ejecutar | Ejecutar | Determinar |
-|  512 | Ejecutar | Ejecutar | Determinar |
-| 1024 | Ejecutar | Ejecutar | Determinar |
-|  ... |      ... |      ... | ...        |
+```{julia}
+using DataFrames
+```
 
-## 12.2 Insertar
+```{julia}
+tabla_buscar = DataFrame(
+    n = [r.n for r in resultados_buscar_vector],
 
-|  `n` |   Vector |   `Dict` | Más rápido |
-|-----:|---------:|---------:|:-----------|
-|    4 | Ejecutar | Ejecutar | Determinar |
-|    8 | Ejecutar | Ejecutar | Determinar |
-|   16 | Ejecutar | Ejecutar | Determinar |
-|   32 | Ejecutar | Ejecutar | Determinar |
-|   64 | Ejecutar | Ejecutar | Determinar |
-|  128 | Ejecutar | Ejecutar | Determinar |
-|  256 | Ejecutar | Ejecutar | Determinar |
-|  512 | Ejecutar | Ejecutar | Determinar |
-| 1024 | Ejecutar | Ejecutar | Determinar |
-|  ... |      ... |      ... | ...        |
+    vector_minimo = [r.minimo for r in resultados_buscar_vector],
+    vector_medio = [r.medio for r in resultados_buscar_vector],
+    vector_maximo = [r.maximo for r in resultados_buscar_vector],
 
-## 12.3 Borrar
+    dict_minimo = [r.minimo for r in resultados_buscar_dict],
+    dict_medio = [r.medio for r in resultados_buscar_dict],
+    dict_maximo = [r.maximo for r in resultados_buscar_dict]
+)
 
-|  `n` |   Vector |   `Dict` | Más rápido |
-|-----:|---------:|---------:|:-----------|
-|    4 | Ejecutar | Ejecutar | Determinar |
-|    8 | Ejecutar | Ejecutar | Determinar |
-|   16 | Ejecutar | Ejecutar | Determinar |
-|   32 | Ejecutar | Ejecutar | Determinar |
-|   64 | Ejecutar | Ejecutar | Determinar |
-|  128 | Ejecutar | Ejecutar | Determinar |
-|  256 | Ejecutar | Ejecutar | Determinar |
-|  512 | Ejecutar | Ejecutar | Determinar |
-| 1024 | Ejecutar | Ejecutar | Determinar |
-|  ... |      ... |      ... | ...        |
+tabla_buscar.comparar = ifelse.(tabla_buscar.vector_medio .< tabla_buscar.dict_medio, "Vector", "Dict")
+```
+
+
+```{julia}
+tabla_buscar 
+```
+
+```{julia}
+using Plots
+plot(
+    tabla_buscar.n,
+    [tabla_buscar.vector_medio tabla_buscar.dict_medio],
+    label=["Vector" "Dict"],
+    xlabel="n",
+    ylabel="Tiempo medio",
+    marker=:circle,
+    linewidth=2,
+    xscale=:log2,
+    yscale=:log10
+)
+```
+
+## 12.2 Borrar
+
+```{julia}
+tabla_borrar = DataFrame(
+    n = [r.n for r in resultados_borrar_vector],
+
+    vector_minimo = [r.minimo for r in resultados_borrar_vector],
+    vector_medio = [r.medio for r in resultados_borrar_vector],
+    vector_maximo = [r.maximo for r in resultados_borrar_vector],
+
+    dict_minimo = [r.minimo for r in resultados_borrar_dict],
+    dict_medio = [r.medio for r in resultados_borrar_dict],
+    dict_maximo = [r.maximo for r in resultados_borrar_dict]
+)
+
+tabla_borrar.comparar = ifelse.(tabla_borrar.vector_medio .< tabla_borrar.dict_medio, "Vector", "Dict")
+```
+
+```{julia}
+tabla_borrar
+```
+
+```{julia}
+plot(
+    tabla_borrar.n,
+    [tabla_borrar.vector_medio tabla_borrar.dict_medio],
+    label=["Vector" "Dict"],
+    xlabel="n",
+    ylabel="Tiempo medio",
+    marker=:circle,
+    linewidth=2,
+    xscale=:log2,
+    yscale=:log10
+)
+```
+
+
+## 12.3 Insertar
+
+```{julia}
+tabla_insertar = DataFrame(
+    n = [r.n for r in resultados_insertar_vector],
+
+    vector_minimo = [r.minimo for r in resultados_insertar_vector],
+    vector_medio = [r.medio for r in resultados_insertar_vector],
+    vector_maximo = [r.maximo for r in resultados_insertar_vector],
+
+    dict_minimo = [r.minimo for r in resultados_insertar_dict],
+    dict_medio = [r.medio for r in resultados_insertar_dict],
+    dict_maximo = [r.maximo for r in resultados_insertar_dict]
+)
+
+tabla_insertar.comparar = ifelse.(tabla_insertar.vector_medio .< tabla_insertar.dict_medio, "Vector", "Dict")
+```
+
+```{julia}
+tabla_insertar 
+```
+
+```{julia}
+plot(
+    tabla_insertar.n,
+    [tabla_insertar.vector_medio tabla_insertar.dict_medio],
+    label=["Vector" "Dict"],
+    xlabel="n",
+    ylabel="Tiempo medio",
+    marker=:circle,
+    linewidth=2,
+    xscale=:log2,
+    yscale=:log10
+)
+```
+
 
 # 13. Análisis e interpretación
 
