@@ -1,0 +1,442 @@
+---
+title: "3A. Práctica. Probabilidad y estadística descriptivas"
+author: "Eduardo Alanís García"
+format: typst
+editor: visual
+---
+
+## Ejercicio 1
+
+Piensa en el experimento de lanzar tres volados con una moneda honesta y quieres calcular la probabilidad de que el número de águilas sea $k$. Mediante ecuaciones (sin código), realiza lo siguiente:
+
+a)  Lista el espacio muestral.
+b)  Calcula paso a paso la función de distribución.
+c)  Calcula de forma explícita la esperanza.
+d)  Calcula de forma explícita la varianza.
+
+### Solución
+
+**(a) Espacio muestral**
+
+Sea $A$ el resultado "águila" y $S$ el resultado "sol". Al lanzar tres volados independientes con una moneda honesta ($P(A) = P(S) = \tfrac12$), el espacio muestral es
+
+$$
+\Omega = \{AAA,\ AAS,\ ASA,\ SAA,\ ASS,\ SAS,\ SSA,\ SSS\}, \qquad |\Omega| = 2^3 = 8.
+$$
+
+**(b) Función de distribución**
+
+Sea $K$ la variable aleatoria "número de águilas obtenidas", con $K \in \{0,1,2,3\}$. Los elementos de $\Omega$ según el valor de $K$ son:
+
+| $k$ | Resultados de $\Omega$ con $K=k$ | \# resultados |
+|:---:|:---------------------------------|:-------------:|
+| $0$ | $SSS$                            |      $1$      |
+| $1$ | $ASS,\ SAS,\ SSA$                |      $3$      |
+| $2$ | $AAS,\ ASA,\ SAA$                |      $3$      |
+| $3$ | $AAA$                            |      $1$      |
+
+Por independencia y por ser la moneda honesta, cada uno de los $8$ resultados tiene la misma probabilidad:
+
+$$
+P(\{\omega\}) = \left(\tfrac12\right)^3 = \tfrac18, \qquad \forall\, \omega \in \Omega.
+$$
+
+La función de probabilidad puntual es
+
+$$
+p_K(0) = \tfrac18, \quad p_K(1) = \tfrac38, \quad p_K(2) = \tfrac38, \quad p_K(3) = \tfrac18.
+$$
+
+Acumulando estas probabilidades obtenemos la función de distribución (acumulada) $F_K(k) = P(K \le k)$:
+
+$$
+F_K(0) = \tfrac18, \qquad
+F_K(1) = \tfrac18 + \tfrac38 = \tfrac48 = \tfrac12, \qquad
+F_K(2) = \tfrac12 + \tfrac38 = \tfrac78, \qquad
+F_K(3) = \tfrac78 + \tfrac18 = 1.
+$$
+
+Por lo tanto,
+
+$$
+F_K(k) =
+\begin{cases}
+0, & k < 0, \\[2pt]
+\dfrac18, & 0 \le k < 1, \\[6pt]
+\dfrac12, & 1 \le k < 2, \\[6pt]
+\dfrac78, & 2 \le k < 3, \\[6pt]
+1, & k \ge 3.
+\end{cases}
+$$
+
+**(c) Esperanza**
+
+Por definición,
+
+$$
+E[K] = \sum_{k=0}^{3} k\, p_K(k)
+= 0\cdot\tfrac18 + 1\cdot\tfrac38 + 2\cdot\tfrac38 + 3\cdot\tfrac18
+= \frac{0+3+6+3}{8} = \frac{12}{8} = \frac32 = 1.5.
+$$
+
+**(d) Varianza**
+
+Primero calculamos el segundo momento:
+
+$$
+E[K^2] = \sum_{k=0}^{3} k^2\, p_K(k)
+= 0\cdot\tfrac18 + 1\cdot\tfrac38 + 4\cdot\tfrac38 + 9\cdot\tfrac18
+= \frac{0+3+12+9}{8} = \frac{24}{8} = 3.
+$$
+
+Con esto,
+
+$$
+\operatorname{Var}(K) = E[K^2] - \big(E[K]\big)^2 = 3 - (1.5)^2 = 3 - 2.25 = 0.75.
+$$
+
+### Observación
+
+Notemos que $K$ resulta ser una variable Binomial$(n=3, p=\tfrac12)$, con media $np = 1.5$ y varianza $np(1-p) = 0.75$, que coincide con lo calculado.
+
+------------------------------------------------------------------------
+
+## Ejercicio 2
+
+Un examen tipo test tiene diez preguntas de opción múltiple, cada una con cuatro posibles respuestas, de las cuales solo una es correcta. Un estudiante responde al azar a cada pregunta.
+
+a)  ¿Cuál es la probabilidad de que el estudiante acierte exactamente tres preguntas?
+b)  ¿Cuál es la probabilidad de que el estudiante acierte al menos dos preguntas?
+c)  ¿Cuál es la probabilidad de que el estudiante no acierte ninguna pregunta?
+
+### Solución
+
+Sea $X$ el número de respuestas correctas de las $10$ preguntas. Como cada pregunta se responde al azar entre $4$ opciones con una sola correcta, cada pregunta es un ensayo Bernoulli con probabilidad de éxito $p = \tfrac14$, independiente de las demás. Por lo tanto,
+
+$$
+X \sim \text{Binomial}(n=10,\ p=\tfrac14), \qquad
+P(X=k) = \binom{10}{k}\left(\tfrac14\right)^{k}\left(\tfrac34\right)^{10-k}.
+$$
+
+**(a) Exactamente tres aciertos**
+
+$$
+P(X=3) = \binom{10}{3}\left(\tfrac14\right)^{3}\left(\tfrac34\right)^{7}
+= 120 \times 0.015625 \times 0.13348389 \approx 0.250282.
+$$
+
+**(b) Al menos dos aciertos**
+
+Usamos el complemento:
+
+$$
+P(X \ge 2) = 1 - P(X=0) - P(X=1).
+$$
+
+$$
+P(X=0) = \left(\tfrac34\right)^{10} \approx 0.056314, \qquad
+P(X=1) = \binom{10}{1}\left(\tfrac14\right)\left(\tfrac34\right)^{9} \approx 0.187712.
+$$
+
+$$
+P(X \ge 2) \approx 1 - 0.056314 - 0.187712 = 0.755975.
+$$
+
+**(c) Ninguna pregunta correcta**
+
+$$
+P(X=0) = \left(\tfrac34\right)^{10} \approx 0.056314.
+$$
+
+### Comprobación con R
+
+Usando las funciones `dbinom()` (probabilidad puntual) y `pbinom()` (probabilidad acumulada) únicamente para **verificar** los resultados obtenidos.
+
+```{r}
+n = 10
+p = 1/4
+
+# (a) P(X = 3)
+p_a = dbinom(3, size = n, prob = p)
+
+# (b) P(X >= 2) = 1 - P(X = 0) - P(X = 1)
+p_b = 1 - pbinom(1, size = n, prob = p)
+
+# (c) P(X = 0)
+p_c = dbinom(0, size = n, prob = p)
+
+resultados = data.frame(
+  inciso = c("(a) P(X=3)", "(b) P(X>=2)", "(c) P(X=0)"),
+  probabilidad = round(c(p_a, p_b, p_c), digits = 6)
+)
+resultados
+```
+
+Los valores obtenidos con R coinciden con los calculados de forma analítica.
+
+------------------------------------------------------------------------
+
+## Ejercicio 3
+
+En una compañía aseguradora de autos, en los dos últimos años, tuvo que entregar las siguientes cantidades como indemnización (en miles de pesos) en el rubro de robo:
+
+- 500, 500, 495, 490, 473, 441, 429, 419, 405, 400, 390, 390, 390, 376, 353
+- 350, 300, 258, 240, 220, 210, 200, 192, 190, 150, 130, 125, 110, 100, 100
+
+Se pide:
+
+1.  Calcular por año y de forma global las medidas de tendencia central y de dispersión, el percentil $0.16$ y $0.84$, y el primer, quinto y noveno decil.
+2.  Señalar con líneas verticales las medidas en un histograma, evaluar si la media es representativa y describir el conjunto de datos.
+
+### Solución
+
+#### Datos
+
+```{r}
+anio1 = c(500, 500, 495, 490, 473, 441, 429, 419, 405, 400, 390, 390, 390, 376, 353)
+anio2 = c(350, 300, 258, 240, 220, 210, 200, 192, 190, 150, 130, 125, 110, 100, 100)
+```
+
+#### Medidas de tendencia central y de dispersión
+
+```{r}
+# Función para calcular la moda
+moda = function(x) {
+  ux = unique(x)
+  tab = tabulate(match(x, ux))
+  ux[tab == max(tab)]
+}
+
+resumen_estadistico = function(x) {
+  c(
+    n            = length(x),
+    media        = mean(x),
+    mediana      = median(x),
+    moda         = paste(moda(x), collapse = ", "),
+    desv_est     = sd(x),
+    varianza     = var(x),
+    rango        = diff(range(x)),
+    RIQ          = IQR(x),
+    percentil_16 = quantile(x, 0.16),
+    percentil_84 = quantile(x, 0.84),
+    decil_1      = quantile(x, 0.1),
+    decil_5      = quantile(x, 0.5),
+    decil_9      = quantile(x, 0.9)
+  )
+}
+
+resumen_anio1  = resumen_estadistico(anio1)
+resumen_anio2  = resumen_estadistico(anio2)
+resumen_global = resumen_estadistico(c(anio1, anio2))
+
+tabla_resumen = data.frame(
+  "Año 1"  = resumen_anio1,
+  "Año 2"  = resumen_anio2,
+  "Global" = resumen_global,
+  check.names = F
+)
+tabla_resumen
+```
+
+#### Histogramas con las medidas señaladas
+
+```{r}
+graficar_histograma = function(x, titulo) {
+  media   = mean(x)
+  mediana = median(x)
+  moda  = moda(x) 
+  p16     = quantile(x, 0.16)
+  p84     = quantile(x, 0.84)
+  d1      = quantile(x, 0.1)
+  d9      = quantile(x, 0.9)
+
+  hist(x, main = titulo, xlab = "Indemnización (miles de pesos)",
+       col = "grey85", border = "white")
+
+  abline(v = media,   col = "red",    lwd = 2, lty = 1)
+  abline(v = mediana, col = "blue",   lwd = 2, lty = 2)
+  abline(v = moda, col = "purple",   lwd = 2, lty = 2)
+  abline(v = p16,     col = "darkgreen", lwd = 2, lty = 3)
+  abline(v = p84,     col = "darkgreen", lwd = 2, lty = 3)
+  abline(v = d1,      col = "orange", lwd = 1, lty = 4)
+  abline(v = d9,      col = "orange", lwd = 1, lty = 4)
+
+  legend("topright", cex = 0.7,
+         legend = c("Media", "Mediana", "Moda","P16 / P84", "D1 / D9"),
+         col = c("red", "blue", "purple" ,"darkgreen", "orange"),
+         lty = c(1, 2, 3, 4, 5))
+}
+
+graficar_histograma(anio1, titulo = "Indemnizaciones - Año 1")
+graficar_histograma(anio2, titulo = "Indemnizaciones - Año 2")
+graficar_histograma(c(anio1, anio2), titulo = "Indemnizaciones - Global")
+```
+
+### Interpretación
+
+- En el Año 1, la media es de 430.07 mil pesos, mientras que la mediana es de 419 mil y la moda es de 390 mil. Como estos valores son cercanos, podemos decir que los datos están bastante concentrados alrededor de los 400 mil pesos, ademas la desviación estándar es de 49.92 mil pesos, lo que indica que los valores no se alejan demasiado de la media. Además, el rango es de 147 mil pesos, por lo que la diferencia entre la indemnización más baja y la más alta tampoco es muy grande. Por lo tanto, la media de 430.07 mil pesos es un valor representativo de las indemnizaciones del Año 1, ya que la mayoría de los datos se encuentran cerca de ese valor.
+- En el Año 2, la media es de 191.67 mil pesos, mientras que la mediana es de 192 mil y la moda es de 100 mil. Aunque la media y la mediana son muy cercanas entre sí, la moda se aleja bastante de ambas, lo que ya es una primera señal de que los datos no están tan concentrados como en el Año 1. Además, la desviación estándar es de 74.74 mil pesos, mucho más alto que en el Año 1, lo que indica que los datos se alejan más de la media. El rango es de 250 mil pesos, es decir, la diferencia entre la indemnización más baja y la más alta es considerablemente mayor. Por lo tanto, aunque la media de 191.67 mil pesos coincide con la mediana, la mayor dispersión de los datos hace que sea un poco menos representativa que en el Año 1, ya que los valores están más repartidos.
+- De forma global, la media es de 310.87 mil pesos, mientras que la mediana es de 351.5 mil y la moda es de 390 mil. En este caso, los tres valores ya no están tan cercanos entre sí, la desviación estándar es de 136.38 mil pesos y el rango es de 400 mil pesos debido que al juntar los dos años se están mezclando dos grupos de datos distintos. Por lo tanto, la media global de 310.87 mil pesos no es un valor representativo de las indemnizaciones, ya que no describe bien a ninguno de los dos grupos.
+
+------------------------------------------------------------------------
+
+## Ejercicio 4
+
+En una empresa trabajan 36 personas, les hicieron dos preguntas ¿Sexo? y ¿Estado Civil?, los resultados fueron los siguientes:
+
+### Datos
+
+```{r}
+sexo = c("Hombre","Hombre","Mujer","Hombre","Mujer","Mujer","Hombre","Mujer",
+          "Hombre","Mujer","Mujer","Hombre","Hombre","Hombre","Mujer","Mujer",
+          "Hombre","Mujer","Mujer","Hombre","Mujer","Hombre","Hombre","Mujer",
+          "Mujer","Mujer","Hombre","Mujer","Mujer","Hombre","Mujer","Mujer",
+          "Hombre","Hombre","Mujer","Hombre")
+
+estado_civil = c("Soltero","Casado","Soltera","Casado","Casada","Casada","Casado","Soltera",
+                  "Soltero","Soltera","Soltera","Casado","Casado","Soltero","Soltera","Casada",
+                  "Soltero","Soltera","Soltera","Soltero","Casada","Soltero","Casado","Soltera",
+                  "Casada","Casada","Soltero","Casada","Soltera","Soltero","Casada","Casada",
+                  "Soltero","Soltero","Soltera","Casado")
+
+empleados = data.frame(sexo = sexo, estado_civil = estado_civil)
+empleados
+```
+
+#### Indicaciones
+
+1.  Interpreta los datos para realizar una tabla de contingencia, así como la tabla marginal y condicional por Sexo y por Estado Civil, ¿Qué conclusiones se obtienen?
+
+### Solución
+
+#### Tabla de contingencia
+
+```{r}
+tabla_contingencia = table(empleados$sexo, empleados$estado_civil)
+tabla_contingencia
+```
+
+#### Tabla marginal
+
+```{r}
+tabla_marginal = addmargins(tabla_contingencia)
+tabla_marginal
+```
+
+#### Tabla condicional por Sexo
+
+```{r}
+condicional_por_sexo = prop.table(tabla_contingencia, margin = 1)
+round(condicional_por_sexo, digits = 3)
+```
+
+#### Tabla condicional por Estado Civil
+
+```{r}
+condicional_por_estado_civil = prop.table(tabla_contingencia, margin = 2)
+round(condicional_por_estado_civil, digits = 3)
+```
+
+### Interpretación y conclusiones
+
+- Sobre la tabla de contingencia y marginal de los 36 empleados, 17 son hombres (47.2%) y 19 son mujeres (52.8%), en cuanto a estado civil, 16 personas son casadas (44.4%) y 20 son solteras (55.6%).
+- Sobre la tabla condicional tenemos que en hombres el 41.2% sos casados mientras que el 58.8% son solteros y en caso de las mujeres tenemos que el 47.4% son casadas mientras que el 52.6% son solteras,
+- Conclusión: las proporciones de personas casadas y solteras son muy similares entre hombres y mujeres (alrededor de 41–47% casados en ambos casos), por lo que no hay evidencia de una diferencia real en el estado civil según el sexo en esta empresa.
+
+------------------------------------------------------------------------
+
+## Ejercicio 5
+
+De los siguientes datos, calcula:
+
+1.  La matriz de varianza-covarianza.
+2.  La matriz de correlación.
+3.  Presenta al menos dos gráficas multivariadas que te permitan detectar grupos similares en los diferentes estados, de manera visual (e.g. Scatter Plot Matrices, Parallel Coordinates Plots, Andrews Plots, Glyph Plots).
+4.  ¿Qué se puede concluir de las correlaciones y los grupos?
+
+#### Construcción de los datos
+
+```{r}
+estados = data.frame(
+  Estado = c("Arizona","Connecticut","Illinois","Iowa","Kansas","Kentucky",
+             "Michigan","Mississippi","Missouri","Montana","Nebraska",
+             "New Hampshire","New Mexico","New York","North Carolina","Ohio",
+             "Pennsylvania","Rhode Island","South Carolina","Texas","Utah",
+             "Virginia","Washington","West Virginia","Wisconsin"),
+  Murder   = c(8.1, 3.3, 10.4, 2.2, 6.0, 9.1, 12.1, 16.1, 9.0, 6.0, 4.3, 2.1,
+               11.4, 11.1, 13.0, 7.3, 6.3, 3.4, 14.4, 12.7, 3.2, 8.5, 4.0, 5.7, 2.6),
+  Assault  = c(294, 110, 249, 56, 115, 109, 215, 259, 178, 109, 102, 47,
+               285, 254, 347, 120, 106, 174, 279, 202, 120, 156, 142, 81, 53),
+  UrbanPop = c(80, 77, 83, 57, 66, 52, 74, 44, 70, 53, 62, 56,
+               70, 86, 45, 75, 72, 87, 48, 80, 80, 63, 73, 39, 66),
+  Rape     = c(31.0, 11.1, 24.0, 11.3, 18.0, 16.3, 35.1, 17.1, 28.2, 16.4,
+               16.5, 9.5, 32.1, 26.1, 16.1, 21.4, 13.9, 8.3, 21.5, 25.5,
+               22.9, 21.7, 26.2, 9.3, 10.8)
+)
+
+rownames(estados) = estados$Estado
+variables = estados[, c("Murder", "Assault", "UrbanPop", "Rape")]
+head(variables)
+```
+
+#### Matriz de varianza-covarianza
+
+```{r}
+matriz_covarianza = cov(variables)
+round(matriz_covarianza, digits = 2)
+```
+
+#### Matriz de correlación
+
+```{r}
+matriz_correlacion = cor(variables)
+round(matriz_correlacion, digits = 2)
+```
+
+#### Gráfica 1: Scatter Plot Matrix
+
+```{r}
+pairs(variables,
+      main = "Scatter Plot Matrix - Criminalidad y Población Urbana",
+      pch = 19, col = "steelblue")
+```
+
+#### Gráfica 2: Parallel Coordinates Plot
+
+```{r}
+matplot(t(variables), type = "l", lty = 1, lwd = 1.2,
+        col = rainbow(nrow(variables)),
+        xaxt = "n", xlab = "", ylab = "Valor",
+        main = "Parallel Coordinates Plot - Estados")
+
+axis(1, at = 1:ncol(variables), labels = names(variables))
+```
+
+```{r}
+escalar = function(x) (x - min(x)) / (max(x) - min(x))
+variables_escaladas = as.data.frame(lapply(variables, escalar))
+
+matplot(t(variables_escaladas), type = "l", lty = 1, lwd = 1.2,
+        col = rainbow(nrow(variables)),
+        xaxt = "n", xlab = "", ylab = "Valor",
+        main = "Parallel Coordinates Plot - Estados")
+
+axis(1, at = 1:ncol(variables_escaladas), labels = names(variables_escaladas))
+
+```
+
+### Interpretación de las gráficas
+
+- Scatter Plot Matrix: Se observa una relación lineal positiva, entre Murder y Assault los puntos siguen una tendencia postiva, consistente con la correlación de 0.81 calculada. La relación entre Assault y Rape también muestra una tendencia positiva, aunque con más dispersión (correlación ≈ 0.59). En contraste, entre UrbanPop y las demás variables (especialmente con Murder) se ve prácticamente sin patrón, los puntos distribuidos de manera dispersa, lo cual es congruente con la correlación casi nula (-0.17) entre ambas variables.
+- Parallel Coordinates Plot: Observamos dos grupos de estados, unos tienen niveles altos en Murder, Assault y Rape, mientras que otros presentan niveles bajos. Sin embargo, en UrbanPop las líneas se cruzan y cambian de posición. Esto muestra que el nivel de urbanización no sigue el mismo patrón que los niveles de criminalidad.
+
+### Interpretación de las correlaciones y conclusiones
+
+```{r}
+matriz_correlacion
+```
+
+- Murder y Assault presentan una correlación positiva fuerte, es decir, estados con más homicidios tienden a tener también más asaltos.
+- Assault y Rape también muestran una correlación positiva considerable.
+- UrbanPop tiene una correlación débil a moderada con las demás variables, lo que sugiere que el grado de urbanización por sí solo no explica bien los niveles de criminalidad violenta en estos datos.
+- Conclusión: Los estados se agrupan más según su nivel de criminalidad que según qué tan urbanizados están. Esto significa que la criminalidad no depende principalmente de la cantidad de población urbana. Por ejemplo, un estado puede estar muy urbanizado y tener un nivel bajo de criminalidad, o puede estar menos urbanizado y presentar un nivel alto de criminalidad.

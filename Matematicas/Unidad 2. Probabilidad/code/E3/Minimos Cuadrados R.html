@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Eduardo Alanís García">
+
+<title>Ejercicio 3. Ajuste por mínimos cuadrados de la temperatura media anual</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Minimos Cuadrados R_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Minimos Cuadrados R_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="Minimos Cuadrados R_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="Minimos Cuadrados R_files/libs/quarto-html/popper.min.js"></script>
+<script src="Minimos Cuadrados R_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Minimos Cuadrados R_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Minimos Cuadrados R_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Minimos Cuadrados R_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Minimos Cuadrados R_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Minimos Cuadrados R_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Minimos Cuadrados R_files/libs/bootstrap/bootstrap-215b371544c282197b31c8aa00ce3677.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Tabla de contenidos</h2>
+   
+  <ul>
+  <li><a href="#scraping-web-y-generación-de-archivos-excel" id="toc-scraping-web-y-generación-de-archivos-excel" class="nav-link active" data-scroll-target="#scraping-web-y-generación-de-archivos-excel">Scraping web y generación de archivos Excel</a>
+  <ul class="collapse">
+  <li><a href="#paso-1.-descarga-de-los-pdf" id="toc-paso-1.-descarga-de-los-pdf" class="nav-link" data-scroll-target="#paso-1.-descarga-de-los-pdf">Paso 1. Descarga de los PDF</a></li>
+  <li><a href="#paso-2.-extracción-de-las-tablas-y-generación-de-los-excel" id="toc-paso-2.-extracción-de-las-tablas-y-generación-de-los-excel" class="nav-link" data-scroll-target="#paso-2.-extracción-de-las-tablas-y-generación-de-los-excel">Paso 2. Extracción de las tablas y generación de los Excel</a></li>
+  </ul></li>
+  <li><a href="#estructuración-de-datos-para-trabajar" id="toc-estructuración-de-datos-para-trabajar" class="nav-link" data-scroll-target="#estructuración-de-datos-para-trabajar">Estructuración de datos para trabajar</a>
+  <ul class="collapse">
+  <li><a href="#datos-mensuales" id="toc-datos-mensuales" class="nav-link" data-scroll-target="#datos-mensuales">Datos mensuales</a></li>
+  <li><a href="#datos-anuales" id="toc-datos-anuales" class="nav-link" data-scroll-target="#datos-anuales">Datos anuales</a></li>
+  </ul></li>
+  <li><a href="#mínimos-cuadrados" id="toc-mínimos-cuadrados" class="nav-link" data-scroll-target="#mínimos-cuadrados">Mínimos cuadrados</a>
+  <ul class="collapse">
+  <li><a href="#preparación-de-los-datos" id="toc-preparación-de-los-datos" class="nav-link" data-scroll-target="#preparación-de-los-datos">Preparación de los datos</a></li>
+  <li><a href="#sumas-necesarias" id="toc-sumas-necesarias" class="nav-link" data-scroll-target="#sumas-necesarias">Sumas necesarias</a></li>
+  <li><a href="#modelo-lineal" id="toc-modelo-lineal" class="nav-link" data-scroll-target="#modelo-lineal">Modelo lineal</a></li>
+  <li><a href="#modelo-cuadrático" id="toc-modelo-cuadrático" class="nav-link" data-scroll-target="#modelo-cuadrático">Modelo cuadrático</a></li>
+  <li><a href="#modelo-cúbico" id="toc-modelo-cúbico" class="nav-link" data-scroll-target="#modelo-cúbico">Modelo cúbico</a></li>
+  <li><a href="#ecuaciones-ajustadas" id="toc-ecuaciones-ajustadas" class="nav-link" data-scroll-target="#ecuaciones-ajustadas">Ecuaciones ajustadas</a></li>
+  </ul></li>
+  <li><a href="#gráficos" id="toc-gráficos" class="nav-link" data-scroll-target="#gráficos">Gráficos</a>
+  <ul class="collapse">
+  <li><a href="#comparación-de-los-modelos" id="toc-comparación-de-los-modelos" class="nav-link" data-scroll-target="#comparación-de-los-modelos">Comparación de los modelos</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Ejercicio 3. Ajuste por mínimos cuadrados de la temperatura media anual</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i> Código</button></div></div>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Autor/a</div>
+    <div class="quarto-title-meta-contents">
+             <p>Eduardo Alanís García </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="scraping-web-y-generación-de-archivos-excel" class="level2">
+<h2 class="anchored" data-anchor-id="scraping-web-y-generación-de-archivos-excel">Scraping web y generación de archivos Excel</h2>
+<p>En esta sección se obtienen los datos de origen: los boletines de <strong>temperatura media (TMED)</strong> del Servicio Meteorológico Nacional (CONAGUA), publicados como un PDF por año. El proceso tiene dos pasos:</p>
+<ol type="1">
+<li>Descargar los PDF de cada año.</li>
+<li>Extraer la tabla de cada PDF y consolidarla en archivos Excel.</li>
+</ol>
+<section id="paso-1.-descarga-de-los-pdf" class="level3">
+<h3 class="anchored" data-anchor-id="paso-1.-descarga-de-los-pdf">Paso 1. Descarga de los PDF</h3>
+<p>El script define la URL base del SMN y recorre los años de 1993 a 2023. Para cada año construye la URL del PDF y lo guarda en la carpeta <code>inputs/pdf/original/</code>. Cada descarga va dentro de <code>tryCatch()</code>, de modo que si un año falla (por ejemplo, porque el archivo no existe) se imprime un aviso y el ciclo continúa con el siguiente.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>url_base <span class="ot">=</span> <span class="st">"https://smn.conagua.gob.mx/tools/DATA/Climatolog%C3%ADa/Pron%C3%B3stico%20clim%C3%A1tico/Temperatura%20y%20Lluvia/TMED/"</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>anios <span class="ot">=</span> <span class="dv">1993</span><span class="sc">:</span><span class="dv">2023</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (anio <span class="cf">in</span> anios) {</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  url <span class="ot">=</span> <span class="fu">paste0</span>(url_base, anio, <span class="st">".pdf"</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  archivo <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">"Unidad 2. Probabilidad/inputs/pdf/original/"</span>, <span class="fu">paste0</span>(anio, <span class="st">".pdf"</span>))</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tryCatch</span>({</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">download.file</span>(</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">url =</span> url,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">destfile =</span> archivo,</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">mode =</span> <span class="st">"wb"</span>,</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">quiet =</span> <span class="cn">TRUE</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"Descargado:"</span>, anio, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  }, <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"Error en:"</span>, anio, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="paso-2.-extracción-de-las-tablas-y-generación-de-los-excel" class="level3">
+<h3 class="anchored" data-anchor-id="paso-2.-extracción-de-las-tablas-y-generación-de-los-excel">Paso 2. Extracción de las tablas y generación de los Excel</h3>
+<p>Este script lee los PDF descargados y los transforma en tablas de datos. Sus partes principales son:</p>
+<ul>
+<li><strong>Preparación:</strong> se listan los PDF y se obtiene el año a partir del nombre de cada archivo (<code>1993.pdf</code> → <code>1993</code>). Con el PDF de 1993 se toma la lista de estados, que será la base sobre la que se irán uniendo los demás años.</li>
+<li><strong>Ciclo por año:</strong> con <code>tabulapdf::extract_tables()</code> se extrae la primera tabla de cada PDF. La columna <code>Anual</code> se separa en su propia tabla (<code>df_anual</code>), y a las columnas mensuales se les agrega el año como sufijo (por ejemplo, <code>Ene_1993</code>) para distinguirlas entre años.</li>
+<li><strong>Un Excel por año:</strong> la tabla mensual de cada año se guarda en <code>inputs/pdf/excel/</code>.</li>
+<li><strong>Consolidación:</strong> con <code>left_join()</code> por <code>Estado</code> se van acumulando todos los años en dos tablas anchas: una con los valores mensuales (<code>datos</code>) y otra con los valores anuales (<code>datos_anual</code>).</li>
+<li><strong>Salida:</strong> ambas tablas se guardan en <code>outputs/</code> como <code>Historicos Temperatura Media Clima.xlsx</code> y <code>Historicos Temperatura Anual Media Clima.xlsx</code>.</li>
+</ul>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>archivos <span class="ot">=</span> <span class="fu">list.files</span>(<span class="at">path =</span> <span class="st">"Unidad 2. Probabilidad/inputs/pdf/original/"</span>, <span class="at">full.names =</span> T, <span class="at">pattern =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">.pdf$"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>anios <span class="ot">=</span> <span class="fu">basename</span>(archivos) <span class="sc">|&gt;</span>  </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gsub</span>(<span class="at">pattern =</span> <span class="st">".pdf"</span>, <span class="at">replacement =</span> <span class="st">""</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  stringr<span class="sc">::</span><span class="fu">str_squish</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.numeric</span>()</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> tabulapdf<span class="sc">::</span><span class="fu">extract_tables</span>(<span class="st">"Unidad 2. Probabilidad/inputs/pdf/original/1993.pdf"</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span> </span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Estado) <span class="sc">|&gt;</span> </span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">Estado =</span> Estado <span class="sc">|&gt;</span> stringr<span class="sc">::</span><span class="fu">str_squish</span>()</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>datos_anual <span class="ot">=</span> datos </span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(archivos)) {</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Vamos en"</span>, archivos[i] <span class="sc">|&gt;</span>  <span class="fu">basename</span>(), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  tabla <span class="ot">=</span> tabulapdf<span class="sc">::</span><span class="fu">extract_tables</span>(archivos[i])[[<span class="dv">1</span>]]</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  df_anual <span class="ot">=</span> tabla <span class="sc">|&gt;</span>  dplyr<span class="sc">::</span><span class="fu">select</span>(Estado, Anual)</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(df_anual)[<span class="dv">2</span>] <span class="ot">=</span> <span class="fu">paste</span>(<span class="st">"Anual"</span>, anios[i])</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  tabla <span class="ot">=</span> tabla <span class="sc">|&gt;</span> </span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>Anual)</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>  columnas <span class="ot">=</span> tabla <span class="sc">|&gt;</span> <span class="fu">names</span>()</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  columnas <span class="ot">=</span> columnas[columnas <span class="sc">!=</span> <span class="st">"Estado"</span>]</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  tabla <span class="ot">=</span> tabla <span class="sc">|&gt;</span> </span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(</span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">.cols =</span> dplyr<span class="sc">::</span><span class="fu">all_of</span>(columnas),</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>      <span class="at">.fn =</span> <span class="sc">~</span> <span class="fu">paste0</span>(.x, <span class="st">"_"</span>, anios[i]) <span class="sc">|&gt;</span> stringr<span class="sc">::</span><span class="fu">str_squish</span>()</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  tabla <span class="ot">=</span> tabla <span class="sc">|&gt;</span> </span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>      <span class="at">Estado =</span> Estado <span class="sc">|&gt;</span>  stringr<span class="sc">::</span><span class="fu">str_squish</span>()</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>  tabla <span class="sc">|&gt;</span> openxlsx<span class="sc">::</span><span class="fu">write.xlsx</span>(<span class="fu">paste0</span>(<span class="st">"Unidad 2. Probabilidad/inputs/pdf/excel/"</span>, anios[i], <span class="st">".xlsx"</span>))</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>  datos <span class="ot">=</span> datos <span class="sc">|&gt;</span> </span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> tabla,</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>      <span class="at">by =</span> <span class="st">"Estado"</span></span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>  datos_anual <span class="ot">=</span> datos_anual <span class="sc">|&gt;</span> </span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(</span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> df_anual,</span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>      <span class="at">by =</span> <span class="st">"Estado"</span></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a>datos <span class="sc">|&gt;</span>  openxlsx<span class="sc">::</span><span class="fu">write.xlsx</span>(<span class="st">"Unidad 2. Probabilidad/outputs/Historicos Temperatura Media Clima.xlsx"</span>)</span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a>datos_anual <span class="sc">|&gt;</span> openxlsx<span class="sc">::</span><span class="fu">write.xlsx</span>(<span class="st">"Unidad 2. Probabilidad/outputs/Historicos Temperatura Anual Media Clima.xlsx"</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="estructuración-de-datos-para-trabajar" class="level2">
+<h2 class="anchored" data-anchor-id="estructuración-de-datos-para-trabajar">Estructuración de datos para trabajar</h2>
+<p>Los Excel generados en la sección anterior tienen un formato <strong>ancho por año</strong> (una fila por estado y una columna por cada mes o año). Aquí se reestructuran para que cada <strong>fila sea un periodo</strong> y cada <strong>columna sea un estado</strong>, con motivo de poder realizar las operaciones de manera mas sencilla.</p>
+<section id="datos-mensuales" class="level3">
+<h3 class="anchored" data-anchor-id="datos-mensuales">Datos mensuales</h3>
+<ol type="1">
+<li>Se lee el Excel con los datos históricos mensuales.</li>
+<li><code>pivot_longer()</code> pasa todas las columnas (excepto <code>Estado</code>) a formato largo: una fila por combinación de estado y periodo (<code>Fecha</code>), con su <code>Temperatura</code>.</li>
+<li><code>pivot_wider()</code> regresa a formato ancho, pero ahora con los estados como columnas. Queda una fila por periodo.</li>
+<li>Se guarda el resultado como <code>Historicos Temperatura Media Clima para trabajar.xlsx</code>.</li>
+<li>Como verificación, se extrae el año de cada <code>Fecha</code> (lo que está después del <code>_</code>) y se cuenta cuántos periodos hay por año. Todos deberían tener el mismo número de meses.</li>
+</ol>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> <span class="st">"Unidad 2. Probabilidad/outputs/Historicos Temperatura Media Clima.xlsx"</span> <span class="sc">|&gt;</span> </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  readxl<span class="sc">::</span><span class="fu">read_excel</span>()</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span> </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span>Estado,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"Fecha"</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"Temperatura"</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span> </span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_wider</span>(</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> Estado,</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> Temperatura</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>datos <span class="sc">|&gt;</span>  openxlsx<span class="sc">::</span><span class="fu">write.xlsx</span>(<span class="st">"Unidad 2. Probabilidad/outputs/Historicos Temperatura Media Clima para trabajar.xlsx"</span>)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar </span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>datos<span class="sc">$</span>Fecha <span class="sc">|&gt;</span>  <span class="fu">sub</span>(<span class="at">pattern =</span> <span class="st">".*_"</span>, <span class="at">replacement =</span> <span class="st">""</span>) <span class="sc">|&gt;</span>  <span class="fu">table</span>() <span class="sc">|&gt;</span>  <span class="fu">sort</span>()</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="datos-anuales" class="level3">
+<h3 class="anchored" data-anchor-id="datos-anuales">Datos anuales</h3>
+<p>Se repite el mismo procedimiento con el archivo de temperaturas anuales. La diferencia es que aquí la columna <code>Fecha</code> contiene textos como <code>"Anual 1993"</code>, por lo que se elimina la palabra <code>"Anual"</code> y se convierte el resto a número. Así <code>Fecha</code> queda como un año numérico (1993, 1994, …). El resultado se guarda como <code>Historicos Temperatura Media Clima Anual para trabajar.xlsx</code>, que es el archivo que se usa en las secciones siguientes.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="do">#############</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="do">### Anual </span><span class="al">###</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="do">#############</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> <span class="st">"Unidad 2. Probabilidad/outputs/Historicos Temperatura Anual Media Clima.xlsx"</span> <span class="sc">|&gt;</span> </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  readxl<span class="sc">::</span><span class="fu">read_excel</span>()</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span> </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span>Estado,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"Fecha"</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"Temperatura"</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span> </span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_wider</span>(</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> Estado,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> Temperatura</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span> </span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">Fecha =</span> Fecha <span class="sc">|&gt;</span>  <span class="fu">gsub</span>(<span class="at">pattern =</span> <span class="st">"Anual"</span>, <span class="at">replacement =</span> <span class="st">""</span>) <span class="sc">|&gt;</span>  stringr<span class="sc">::</span><span class="fu">str_squish</span>() <span class="sc">|&gt;</span>  <span class="fu">as.numeric</span>())</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>datos <span class="sc">|&gt;</span>  openxlsx<span class="sc">::</span><span class="fu">write.xlsx</span>(<span class="st">"Unidad 2. Probabilidad/outputs/Historicos Temperatura Media Clima Anual para trabajar.xlsx"</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="mínimos-cuadrados" class="level2">
+<h2 class="anchored" data-anchor-id="mínimos-cuadrados">Mínimos cuadrados</h2>
+<p>A partir de aquí <strong>el código sí se ejecuta</strong> al generar el documento. Se ajustan tres modelos polinomiales a la temperatura media anual de <strong>Aguascalientes</strong>:</p>
+<p><span class="math display">\[
+\text{Lineal: } Y = \beta_0 + \beta_1 t
+\qquad
+\text{Cuadrático: } Y = \beta_0 + \beta_1 t + \beta_2 t^2
+\qquad
+\text{Cúbico: } Y = \beta_0 + \beta_1 t + \beta_2 t^2 + \beta_3 t^3
+\]</span></p>
+<p>donde <span class="math inline">\(t\)</span> es el “año computacional” (1, 2, 3, …). Los coeficientes se obtienen resolviendo las <strong>ecuaciones normales</strong> <span class="math inline">\(A\,\beta = b\)</span>, en las que cada entrada de <span class="math inline">\(A\)</span> es una suma de potencias de <span class="math inline">\(t\)</span> y cada entrada de <span class="math inline">\(b\)</span> es una suma de potencias de <span class="math inline">\(t\)</span> multiplicadas por la temperatura <span class="math inline">\(y\)</span>.</p>
+<section id="preparación-de-los-datos" class="level3">
+<h3 class="anchored" data-anchor-id="preparación-de-los-datos">Preparación de los datos</h3>
+<p>Se leen los datos anuales ya estructurados y se conserva únicamente la columna <code>Aguascalientes</code>, que se renombra como <code>Media</code>. Se crea el <strong>año computacional</strong> <span class="math inline">\(t\)</span> (1, 2, …, n) con <code>row_number()</code> y se calculan las columnas auxiliares <span class="math inline">\(t\cdot y\)</span>, <span class="math inline">\(t^2\cdot y\)</span> y <span class="math inline">\(t^3\cdot y\)</span>, necesarias para el lado derecho de las ecuaciones normales.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> <span class="st">"../../outputs/Historicos Temperatura Media Clima Anual para trabajar.xlsx"</span> <span class="sc">|&gt;</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  readxl<span class="sc">::</span><span class="fu">read_excel</span>()</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Fecha, Aguascalientes) <span class="sc">|&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">Media =</span> Aguascalientes) <span class="sc">|&gt;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span> <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">row_number</span>()</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">relocate</span>(<span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span>, <span class="at">.after =</span> Fecha)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">yt   =</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span>    <span class="sc">*</span> Media,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">yt_2 =</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">2</span>  <span class="sc">*</span> Media,</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">yt_3 =</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">3</span>  <span class="sc">*</span> Media</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(datos)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 6
+  Fecha `Anio computacional` Media    yt  yt_2   yt_3
+  &lt;dbl&gt;                &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+1  1993                    1  17.5  17.5  17.5   17.5
+2  1994                    2  17.7  35.4  70.8  142. 
+3  1995                    3  17.6  52.8 158.   475. 
+4  1996                    4  17.4  69.6 278.  1114. 
+5  1997                    5  17.4  87   435   2175  
+6  1998                    6  17.6 106.  634.  3802. </code></pre>
+</div>
+</div>
+</section>
+<section id="sumas-necesarias" class="level3">
+<h3 class="anchored" data-anchor-id="sumas-necesarias">Sumas necesarias</h3>
+<p>Se calculan el número de observaciones <span class="math inline">\(n\)</span>, las sumas de potencias de <span class="math inline">\(t\)</span> (de <span class="math inline">\(\sum t\)</span> hasta <span class="math inline">\(\sum t^6\)</span>) y las sumas <span class="math inline">\(\sum y\)</span>, <span class="math inline">\(\sum ty\)</span>, <span class="math inline">\(\sum t^2 y\)</span> y <span class="math inline">\(\sum t^3 y\)</span>. Con estas cantidades se arman todos los sistemas de ecuaciones.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>n <span class="ot">=</span> <span class="fu">nrow</span>(datos)                                          </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>t_1 <span class="ot">=</span> datos<span class="sc">$</span><span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span> <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>t_2 <span class="ot">=</span> (datos<span class="sc">$</span><span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">2</span>) <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>t_3 <span class="ot">=</span> (datos<span class="sc">$</span><span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">3</span>) <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>t_4 <span class="ot">=</span> (datos<span class="sc">$</span><span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">4</span>) <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>t_5 <span class="ot">=</span> (datos<span class="sc">$</span><span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>t_6 <span class="ot">=</span> (datos<span class="sc">$</span><span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">6</span>) <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>y    <span class="ot">=</span> datos<span class="sc">$</span>Media <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>yt   <span class="ot">=</span> datos<span class="sc">$</span>yt    <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>yt_2 <span class="ot">=</span> datos<span class="sc">$</span>yt_2  <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>yt_3 <span class="ot">=</span> datos<span class="sc">$</span>yt_3  <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="modelo-lineal" class="level3">
+<h3 class="anchored" data-anchor-id="modelo-lineal">Modelo lineal</h3>
+<p>Sistema de 2 × 2. El resultado <code>x_lineal</code> contiene <span class="math inline">\((\beta_0, \beta_1)\)</span>.</p>
+<p><span class="math display">\[
+\begin{pmatrix} n &amp; \sum t \\ \sum t &amp; \sum t^2 \end{pmatrix}
+\begin{pmatrix} \beta_0 \\ \beta_1 \end{pmatrix}
+=
+\begin{pmatrix} \sum y \\ \sum ty \end{pmatrix}
+\]</span></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># lineal</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>A_lineal <span class="ot">=</span> <span class="fu">matrix</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(n,   t_1,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    t_1, t_2),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> T</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>b_lineal <span class="ot">=</span> <span class="fu">c</span>(y, yt)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>x_lineal <span class="ot">=</span> <span class="fu">solve</span>(A_lineal) <span class="sc">%*%</span> b_lineal</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>x_lineal</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            [,1]
+[1,] 17.47677419
+[2,]  0.01677419</code></pre>
+</div>
+</div>
+</section>
+<section id="modelo-cuadrático" class="level3">
+<h3 class="anchored" data-anchor-id="modelo-cuadrático">Modelo cuadrático</h3>
+<p>Sistema de 3 × 3. El resultado <code>x_cuadratico</code> contiene <span class="math inline">\((\beta_0, \beta_1, \beta_2)\)</span>.</p>
+<p><span class="math display">\[
+\begin{pmatrix} n &amp; \sum t &amp; \sum t^2 \\ \sum t &amp; \sum t^2 &amp; \sum t^3 \\ \sum t^2 &amp; \sum t^3 &amp; \sum t^4 \end{pmatrix}
+\begin{pmatrix} \beta_0 \\ \beta_1 \\ \beta_2 \end{pmatrix}
+=
+\begin{pmatrix} \sum y \\ \sum ty \\ \sum t^2 y \end{pmatrix}
+\]</span></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Caso cuadrático</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>A_cuadratico <span class="ot">=</span> <span class="fu">matrix</span>(</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(n,   t_1, t_2,</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    t_1, t_2, t_3,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    t_2, t_3, t_4),</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">byrow =</span> T</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>b_cuadratico <span class="ot">=</span> <span class="fu">c</span>(y, yt, yt_2)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>x_cuadratico <span class="ot">=</span> <span class="fu">solve</span>(A_cuadratico) <span class="sc">%*%</span> b_cuadratico</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>x_cuadratico</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              [,1]
+[1,] 17.5822246941
+[2,] -0.0023986247
+[3,]  0.0005991506</code></pre>
+</div>
+</div>
+</section>
+<section id="modelo-cúbico" class="level3">
+<h3 class="anchored" data-anchor-id="modelo-cúbico">Modelo cúbico</h3>
+<p>Sistema de 4 × 4. El resultado <code>x_cubico</code> contiene <span class="math inline">\((\beta_0, \beta_1, \beta_2, \beta_3)\)</span>.</p>
+<p><span class="math display">\[
+\begin{pmatrix} n &amp; \sum t &amp; \sum t^2 &amp; \sum t^3 \\ \sum t &amp; \sum t^2 &amp; \sum t^3 &amp; \sum t^4 \\ \sum t^2 &amp; \sum t^3 &amp; \sum t^4 &amp; \sum t^5 \\ \sum t^3 &amp; \sum t^4 &amp; \sum t^5 &amp; \sum t^6 \end{pmatrix}
+\begin{pmatrix} \beta_0 \\ \beta_1 \\ \beta_2 \\ \beta_3 \end{pmatrix}
+=
+\begin{pmatrix} \sum y \\ \sum ty \\ \sum t^2 y \\ \sum t^3 y \end{pmatrix}
+\]</span></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Caso cúbico</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>A_cubico <span class="ot">=</span> <span class="fu">matrix</span>(</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(n,   t_1, t_2, t_3,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    t_1, t_2, t_3, t_4,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    t_2, t_3, t_4, t_5,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    t_3, t_4, t_5, t_6),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">4</span>, <span class="at">ncol =</span> <span class="dv">4</span>, <span class="at">byrow =</span> T</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>b_cubico <span class="ot">=</span> <span class="fu">c</span>(y, yt, yt_2, yt_3)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>x_cubico <span class="ot">=</span> <span class="fu">solve</span>(A_cubico) <span class="sc">%*%</span> b_cubico</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>x_cubico</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              [,1]
+[1,]  1.741835e+01
+[2,]  5.458013e-02
+[3,] -3.782426e-03
+[4,]  9.128285e-05</code></pre>
+</div>
+</div>
+</section>
+<section id="ecuaciones-ajustadas" class="level3">
+<h3 class="anchored" data-anchor-id="ecuaciones-ajustadas">Ecuaciones ajustadas</h3>
+<p>Con los coeficientes obtenidos se calcula el valor ajustado de cada modelo para cada año (<code>ajuste_lineal</code>, <code>ajuste_cuadratico</code>, <code>ajuste_cubico</code>) y se imprimen las tres ecuaciones con los coeficientes redondeados a 4 decimales.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">ajuste_lineal =</span> x_lineal[<span class="dv">1</span>, <span class="dv">1</span>] <span class="sc">+</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>      x_lineal[<span class="dv">2</span>, <span class="dv">1</span>] <span class="sc">*</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">ajuste_cuadratico =</span> x_cuadratico[<span class="dv">1</span>, <span class="dv">1</span>] <span class="sc">+</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>      x_cuadratico[<span class="dv">2</span>, <span class="dv">1</span>] <span class="sc">*</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span> <span class="sc">+</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>      x_cuadratico[<span class="dv">3</span>, <span class="dv">1</span>] <span class="sc">*</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">2</span>,</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">ajuste_cubico =</span> x_cubico[<span class="dv">1</span>, <span class="dv">1</span>] <span class="sc">+</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>      x_cubico[<span class="dv">2</span>, <span class="dv">1</span>] <span class="sc">*</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span> <span class="sc">+</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>      x_cubico[<span class="dv">3</span>, <span class="dv">1</span>] <span class="sc">*</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>      x_cubico[<span class="dv">4</span>, <span class="dv">1</span>] <span class="sc">*</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">3</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Ecuación lineal:    Y ="</span>, <span class="fu">round</span>(x_lineal[<span class="dv">1</span>,<span class="dv">1</span>], <span class="dv">4</span>), <span class="st">"+"</span>, <span class="fu">round</span>(x_lineal[<span class="dv">2</span>,<span class="dv">1</span>], <span class="dv">4</span>), <span class="st">"* t</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Ecuación lineal:    Y = 17.4768 + 0.0168 * t</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Ecuación cuadrática: Y ="</span>, <span class="fu">round</span>(x_cuadratico[<span class="dv">1</span>,<span class="dv">1</span>], <span class="dv">4</span>), <span class="st">"+"</span>, <span class="fu">round</span>(x_cuadratico[<span class="dv">2</span>,<span class="dv">1</span>], <span class="dv">4</span>),</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"* t +"</span>, <span class="fu">round</span>(x_cuadratico[<span class="dv">3</span>,<span class="dv">1</span>], <span class="dv">4</span>), <span class="st">"* t^2</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Ecuación cuadrática: Y = 17.5822 + -0.0024 * t + 6e-04 * t^2</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Ecuación cúbica:    Y ="</span>, <span class="fu">round</span>(x_cubico[<span class="dv">1</span>,<span class="dv">1</span>], <span class="dv">4</span>), <span class="st">"+"</span>, <span class="fu">round</span>(x_cubico[<span class="dv">2</span>,<span class="dv">1</span>], <span class="dv">4</span>),</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"* t +"</span>, <span class="fu">round</span>(x_cubico[<span class="dv">3</span>,<span class="dv">1</span>], <span class="dv">4</span>), <span class="st">"* t^2 +"</span>, <span class="fu">round</span>(x_cubico[<span class="dv">4</span>,<span class="dv">1</span>], <span class="dv">4</span>), <span class="st">"* t^3</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Ecuación cúbica:    Y = 17.4184 + 0.0546 * t + -0.0038 * t^2 + 1e-04 * t^3</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="gráficos" class="level2">
+<h2 class="anchored" data-anchor-id="gráficos">Gráficos</h2>
+<p>Para comparar visualmente los tres modelos con los datos observados, primero se transforma la tabla a <strong>formato largo</strong>: las tres columnas de ajuste se convierten en una sola columna <code>Ajuste</code>, con una columna <code>Modelo</code> que indica a cuál corresponde (Lineal, Cuadrático o Cúbico). Este formato es el que necesita <code>ggplot2</code> para dibujar una curva por modelo.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>datos_grafica <span class="ot">=</span> datos <span class="sc">|&gt;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">c</span>(ajuste_lineal, ajuste_cuadratico, ajuste_cubico),</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to  =</span> <span class="st">"Modelo"</span>,</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"Ajuste"</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">Modelo =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>      Modelo <span class="sc">==</span> <span class="st">"ajuste_lineal"</span>     <span class="sc">~</span> <span class="st">"Lineal"</span>,</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>      Modelo <span class="sc">==</span> <span class="st">"ajuste_cuadratico"</span> <span class="sc">~</span> <span class="st">"Cuadrático"</span>,</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>      Modelo <span class="sc">==</span> <span class="st">"ajuste_cubico"</span>     <span class="sc">~</span> <span class="st">"Cúbico"</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="comparación-de-los-modelos" class="level3">
+<h3 class="anchored" data-anchor-id="comparación-de-los-modelos">Comparación de los modelos</h3>
+<p>El gráfico muestra los valores observados como puntos y cada modelo ajustado como una línea de distinto color. Se define una paleta manual para los modelos y se aplica un tema limpio (<code>theme_minimal</code>) con título, subtítulo y leyenda inferior.</p>
+<div class="cell" data-layout-align="center">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Grafico</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>colores_modelo <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Lineal"</span>    <span class="ot">=</span> <span class="st">"#1f77b4"</span>,</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Cuadrático"</span> <span class="ot">=</span> <span class="st">"#d62728"</span>,</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Cúbico"</span>    <span class="ot">=</span> <span class="st">"#2ca02c"</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Si tus niveles de "Modelo" tienen otros nombres, ajusta los names() de arriba</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(datos_grafica, <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Puntos observados</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">y =</span> Media),</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"grey20"</span>,</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill  =</span> <span class="st">"white"</span>,</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape =</span> <span class="dv">21</span>,</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">size  =</span> <span class="fl">2.5</span>,</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">stroke =</span> <span class="fl">0.8</span>,</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.9</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Curvas ajustadas</span></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">y =</span> Ajuste, <span class="at">color =</span> Modelo),</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">1.1</span></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> colores_modelo) <span class="sc">+</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Ajuste por Mínimos Cuadrados - Temperatura Media Anual Aguascalientes"</span>,</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Comparación de modelos lineal, cuadrático y cúbico"</span>,</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Año computacional (t)"</span>,</span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Temperatura media (°C)"</span>,</span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">color    =</span> <span class="st">"Modelo"</span>,</span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption  =</span> <span class="st">"Los puntos representan los valores originales; las líneas, los modelos."</span></span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>, <span class="at">base_family =</span> <span class="st">"sans"</span>) <span class="sc">+</span></span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title       =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">16</span>, <span class="at">margin =</span> <span class="fu">margin</span>(<span class="at">b =</span> <span class="dv">4</span>)),</span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.subtitle    =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"grey35"</span>, <span class="at">size =</span> <span class="dv">11</span>, <span class="at">margin =</span> <span class="fu">margin</span>(<span class="at">b =</span> <span class="dv">12</span>)),</span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.caption     =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"grey50"</span>, <span class="at">size =</span> <span class="fl">8.5</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">margin =</span> <span class="fu">margin</span>(<span class="at">t =</span> <span class="dv">10</span>)),</span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title       =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">11</span>),</span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text        =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"grey25"</span>),</span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position  =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.title     =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major =</span> <span class="fu">element_line</span>(<span class="at">color =</span> <span class="st">"grey90"</span>, <span class="at">linewidth =</span> <span class="fl">0.4</span>),</span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.margin      =</span> <span class="fu">margin</span>(<span class="dv">15</span>, <span class="dv">15</span>, <span class="dv">10</span>, <span class="dv">15</span>)</span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="Minimos-Cuadrados-R_files/figure-html/grafico-ajustes-1.png" class="img-fluid quarto-figure quarto-figure-center figure-img" width="864"></p>
+</figure>
+</div>
+</div>
+</div>
+<!-- -->
+
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const cellDetails = window.document.querySelectorAll(".cell details.code-fold");
+        for (let i=0; i<cellDetails.length; i++) {
+          const details = cellDetails[i];
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell div.sourceCode.cell-code");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Ejecutar el código</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Ejercicio 3. Ajuste por mínimos cuadrados de la temperatura media anual"</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Eduardo Alanís García"</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="an">lang:</span><span class="co"> es</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co">    toc: true</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co">    code-fold: false</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co">    code-tools: true</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="an">execute:</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co">  warning: false</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co">  message: false</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="fu">## Scraping web y generación de archivos Excel</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>En esta sección se obtienen los datos de origen: los boletines de **temperatura media (TMED)** del Servicio Meteorológico Nacional (CONAGUA), publicados como un PDF por año. El proceso tiene dos pasos:</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Descargar los PDF de cada año.</span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Extraer la tabla de cada PDF y consolidarla en archivos Excel.</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="fu">### Paso 1. Descarga de los PDF</span></span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>El script define la URL base del SMN y recorre los años de 1993 a 2023. Para cada año construye la URL del PDF y lo guarda en la carpeta <span class="in">`inputs/pdf/original/`</span>. Cada descarga va dentro de <span class="in">`tryCatch()`</span>, de modo que si un año falla (por ejemplo, porque el archivo no existe) se imprime un aviso y el ciclo continúa con el siguiente.</span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: descarga-pdf</span></span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>url_base <span class="ot">=</span> <span class="st">"https://smn.conagua.gob.mx/tools/DATA/Climatolog%C3%ADa/Pron%C3%B3stico%20clim%C3%A1tico/Temperatura%20y%20Lluvia/TMED/"</span></span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>anios <span class="ot">=</span> <span class="dv">1993</span><span class="sc">:</span><span class="dv">2023</span></span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (anio <span class="cf">in</span> anios) {</span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>  url <span class="ot">=</span> <span class="fu">paste0</span>(url_base, anio, <span class="st">".pdf"</span>)</span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>  archivo <span class="ot">=</span> <span class="fu">file.path</span>(<span class="st">"Unidad 2. Probabilidad/inputs/pdf/original/"</span>, <span class="fu">paste0</span>(anio, <span class="st">".pdf"</span>))</span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tryCatch</span>({</span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">download.file</span>(</span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a>      <span class="at">url =</span> url,</span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a>      <span class="at">destfile =</span> archivo,</span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a>      <span class="at">mode =</span> <span class="st">"wb"</span>,</span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a>      <span class="at">quiet =</span> <span class="cn">TRUE</span></span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"Descargado:"</span>, anio, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a>  }, <span class="at">error =</span> <span class="cf">function</span>(e) {</span>
+<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"Error en:"</span>, anio, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb22-60"><a href="#cb22-60" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-61"><a href="#cb22-61" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-62"><a href="#cb22-62" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-63"><a href="#cb22-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-64"><a href="#cb22-64" aria-hidden="true" tabindex="-1"></a><span class="fu">### Paso 2. Extracción de las tablas y generación de los Excel</span></span>
+<span id="cb22-65"><a href="#cb22-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-66"><a href="#cb22-66" aria-hidden="true" tabindex="-1"></a>Este script lee los PDF descargados y los transforma en tablas de datos. Sus partes principales son:</span>
+<span id="cb22-67"><a href="#cb22-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-68"><a href="#cb22-68" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Preparación:** se listan los PDF y se obtiene el año a partir del nombre de cada archivo (<span class="in">`1993.pdf`</span> → <span class="in">`1993`</span>). Con el PDF de 1993 se toma la lista de estados, que será la base sobre la que se irán uniendo los demás años.</span>
+<span id="cb22-69"><a href="#cb22-69" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Ciclo por año:** con <span class="in">`tabulapdf::extract_tables()`</span> se extrae la primera tabla de cada PDF. La columna <span class="in">`Anual`</span> se separa en su propia tabla (<span class="in">`df_anual`</span>), y a las columnas mensuales se les agrega el año como sufijo (por ejemplo, <span class="in">`Ene_1993`</span>) para distinguirlas entre años.</span>
+<span id="cb22-70"><a href="#cb22-70" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Un Excel por año:** la tabla mensual de cada año se guarda en <span class="in">`inputs/pdf/excel/`</span>.</span>
+<span id="cb22-71"><a href="#cb22-71" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Consolidación:** con <span class="in">`left_join()`</span> por <span class="in">`Estado`</span> se van acumulando todos los años en dos tablas anchas: una con los valores mensuales (<span class="in">`datos`</span>) y otra con los valores anuales (<span class="in">`datos_anual`</span>).</span>
+<span id="cb22-72"><a href="#cb22-72" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Salida:** ambas tablas se guardan en <span class="in">`outputs/`</span> como <span class="in">`Historicos Temperatura Media Clima.xlsx`</span> y <span class="in">`Historicos Temperatura Anual Media Clima.xlsx`</span>.</span>
+<span id="cb22-73"><a href="#cb22-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-76"><a href="#cb22-76" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-77"><a href="#cb22-77" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: generar-excel</span></span>
+<span id="cb22-78"><a href="#cb22-78" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-79"><a href="#cb22-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-80"><a href="#cb22-80" aria-hidden="true" tabindex="-1"></a>archivos <span class="ot">=</span> <span class="fu">list.files</span>(<span class="at">path =</span> <span class="st">"Unidad 2. Probabilidad/inputs/pdf/original/"</span>, <span class="at">full.names =</span> T, <span class="at">pattern =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">.pdf$"</span>)</span>
+<span id="cb22-81"><a href="#cb22-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-82"><a href="#cb22-82" aria-hidden="true" tabindex="-1"></a>anios <span class="ot">=</span> <span class="fu">basename</span>(archivos) <span class="sc">|&gt;</span>  </span>
+<span id="cb22-83"><a href="#cb22-83" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gsub</span>(<span class="at">pattern =</span> <span class="st">".pdf"</span>, <span class="at">replacement =</span> <span class="st">""</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb22-84"><a href="#cb22-84" aria-hidden="true" tabindex="-1"></a>  stringr<span class="sc">::</span><span class="fu">str_squish</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb22-85"><a href="#cb22-85" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.numeric</span>()</span>
+<span id="cb22-86"><a href="#cb22-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-87"><a href="#cb22-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-88"><a href="#cb22-88" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> tabulapdf<span class="sc">::</span><span class="fu">extract_tables</span>(<span class="st">"Unidad 2. Probabilidad/inputs/pdf/original/1993.pdf"</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb22-89"><a href="#cb22-89" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span> </span>
+<span id="cb22-90"><a href="#cb22-90" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Estado) <span class="sc">|&gt;</span> </span>
+<span id="cb22-91"><a href="#cb22-91" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb22-92"><a href="#cb22-92" aria-hidden="true" tabindex="-1"></a>    <span class="at">Estado =</span> Estado <span class="sc">|&gt;</span> stringr<span class="sc">::</span><span class="fu">str_squish</span>()</span>
+<span id="cb22-93"><a href="#cb22-93" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb22-94"><a href="#cb22-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-95"><a href="#cb22-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-96"><a href="#cb22-96" aria-hidden="true" tabindex="-1"></a>datos_anual <span class="ot">=</span> datos </span>
+<span id="cb22-97"><a href="#cb22-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-98"><a href="#cb22-98" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(archivos)) {</span>
+<span id="cb22-99"><a href="#cb22-99" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Vamos en"</span>, archivos[i] <span class="sc">|&gt;</span>  <span class="fu">basename</span>(), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb22-100"><a href="#cb22-100" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-101"><a href="#cb22-101" aria-hidden="true" tabindex="-1"></a>  tabla <span class="ot">=</span> tabulapdf<span class="sc">::</span><span class="fu">extract_tables</span>(archivos[i])[[<span class="dv">1</span>]]</span>
+<span id="cb22-102"><a href="#cb22-102" aria-hidden="true" tabindex="-1"></a>  df_anual <span class="ot">=</span> tabla <span class="sc">|&gt;</span>  dplyr<span class="sc">::</span><span class="fu">select</span>(Estado, Anual)</span>
+<span id="cb22-103"><a href="#cb22-103" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(df_anual)[<span class="dv">2</span>] <span class="ot">=</span> <span class="fu">paste</span>(<span class="st">"Anual"</span>, anios[i])</span>
+<span id="cb22-104"><a href="#cb22-104" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-105"><a href="#cb22-105" aria-hidden="true" tabindex="-1"></a>  tabla <span class="ot">=</span> tabla <span class="sc">|&gt;</span> </span>
+<span id="cb22-106"><a href="#cb22-106" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>Anual)</span>
+<span id="cb22-107"><a href="#cb22-107" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-108"><a href="#cb22-108" aria-hidden="true" tabindex="-1"></a>  columnas <span class="ot">=</span> tabla <span class="sc">|&gt;</span> <span class="fu">names</span>()</span>
+<span id="cb22-109"><a href="#cb22-109" aria-hidden="true" tabindex="-1"></a>  columnas <span class="ot">=</span> columnas[columnas <span class="sc">!=</span> <span class="st">"Estado"</span>]</span>
+<span id="cb22-110"><a href="#cb22-110" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-111"><a href="#cb22-111" aria-hidden="true" tabindex="-1"></a>  tabla <span class="ot">=</span> tabla <span class="sc">|&gt;</span> </span>
+<span id="cb22-112"><a href="#cb22-112" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename_with</span>(</span>
+<span id="cb22-113"><a href="#cb22-113" aria-hidden="true" tabindex="-1"></a>      <span class="at">.cols =</span> dplyr<span class="sc">::</span><span class="fu">all_of</span>(columnas),</span>
+<span id="cb22-114"><a href="#cb22-114" aria-hidden="true" tabindex="-1"></a>      <span class="at">.fn =</span> <span class="sc">~</span> <span class="fu">paste0</span>(.x, <span class="st">"_"</span>, anios[i]) <span class="sc">|&gt;</span> stringr<span class="sc">::</span><span class="fu">str_squish</span>()</span>
+<span id="cb22-115"><a href="#cb22-115" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-116"><a href="#cb22-116" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-117"><a href="#cb22-117" aria-hidden="true" tabindex="-1"></a>  tabla <span class="ot">=</span> tabla <span class="sc">|&gt;</span> </span>
+<span id="cb22-118"><a href="#cb22-118" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb22-119"><a href="#cb22-119" aria-hidden="true" tabindex="-1"></a>      <span class="at">Estado =</span> Estado <span class="sc">|&gt;</span>  stringr<span class="sc">::</span><span class="fu">str_squish</span>()</span>
+<span id="cb22-120"><a href="#cb22-120" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-121"><a href="#cb22-121" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-122"><a href="#cb22-122" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-123"><a href="#cb22-123" aria-hidden="true" tabindex="-1"></a>  tabla <span class="sc">|&gt;</span> openxlsx<span class="sc">::</span><span class="fu">write.xlsx</span>(<span class="fu">paste0</span>(<span class="st">"Unidad 2. Probabilidad/inputs/pdf/excel/"</span>, anios[i], <span class="st">".xlsx"</span>))</span>
+<span id="cb22-124"><a href="#cb22-124" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-125"><a href="#cb22-125" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-126"><a href="#cb22-126" aria-hidden="true" tabindex="-1"></a>  datos <span class="ot">=</span> datos <span class="sc">|&gt;</span> </span>
+<span id="cb22-127"><a href="#cb22-127" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(</span>
+<span id="cb22-128"><a href="#cb22-128" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> tabla,</span>
+<span id="cb22-129"><a href="#cb22-129" aria-hidden="true" tabindex="-1"></a>      <span class="at">by =</span> <span class="st">"Estado"</span></span>
+<span id="cb22-130"><a href="#cb22-130" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-131"><a href="#cb22-131" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-132"><a href="#cb22-132" aria-hidden="true" tabindex="-1"></a>  datos_anual <span class="ot">=</span> datos_anual <span class="sc">|&gt;</span> </span>
+<span id="cb22-133"><a href="#cb22-133" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(</span>
+<span id="cb22-134"><a href="#cb22-134" aria-hidden="true" tabindex="-1"></a>      <span class="at">y =</span> df_anual,</span>
+<span id="cb22-135"><a href="#cb22-135" aria-hidden="true" tabindex="-1"></a>      <span class="at">by =</span> <span class="st">"Estado"</span></span>
+<span id="cb22-136"><a href="#cb22-136" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-137"><a href="#cb22-137" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb22-138"><a href="#cb22-138" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-139"><a href="#cb22-139" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-140"><a href="#cb22-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-141"><a href="#cb22-141" aria-hidden="true" tabindex="-1"></a>datos <span class="sc">|&gt;</span>  openxlsx<span class="sc">::</span><span class="fu">write.xlsx</span>(<span class="st">"Unidad 2. Probabilidad/outputs/Historicos Temperatura Media Clima.xlsx"</span>)</span>
+<span id="cb22-142"><a href="#cb22-142" aria-hidden="true" tabindex="-1"></a>datos_anual <span class="sc">|&gt;</span> openxlsx<span class="sc">::</span><span class="fu">write.xlsx</span>(<span class="st">"Unidad 2. Probabilidad/outputs/Historicos Temperatura Anual Media Clima.xlsx"</span>)</span>
+<span id="cb22-143"><a href="#cb22-143" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-144"><a href="#cb22-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-145"><a href="#cb22-145" aria-hidden="true" tabindex="-1"></a><span class="fu">## Estructuración de datos para trabajar</span></span>
+<span id="cb22-146"><a href="#cb22-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-147"><a href="#cb22-147" aria-hidden="true" tabindex="-1"></a>Los Excel generados en la sección anterior tienen un formato **ancho por año** (una fila por estado y una columna por cada mes o año). Aquí se reestructuran para que cada **fila sea un periodo** y cada **columna sea un estado**, con motivo de poder realizar las operaciones de manera mas sencilla.</span>
+<span id="cb22-148"><a href="#cb22-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-149"><a href="#cb22-149" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-150"><a href="#cb22-150" aria-hidden="true" tabindex="-1"></a><span class="fu">### Datos mensuales</span></span>
+<span id="cb22-151"><a href="#cb22-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-152"><a href="#cb22-152" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Se lee el Excel con los datos históricos mensuales.</span>
+<span id="cb22-153"><a href="#cb22-153" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span><span class="in">`pivot_longer()`</span> pasa todas las columnas (excepto <span class="in">`Estado`</span>) a formato largo: una fila por combinación de estado y periodo (<span class="in">`Fecha`</span>), con su <span class="in">`Temperatura`</span>.</span>
+<span id="cb22-154"><a href="#cb22-154" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span><span class="in">`pivot_wider()`</span> regresa a formato ancho, pero ahora con los estados como columnas. Queda una fila por periodo.</span>
+<span id="cb22-155"><a href="#cb22-155" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span>Se guarda el resultado como <span class="in">`Historicos Temperatura Media Clima para trabajar.xlsx`</span>.</span>
+<span id="cb22-156"><a href="#cb22-156" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Como verificación, se extrae el año de cada <span class="in">`Fecha`</span> (lo que está después del <span class="in">`_`</span>) y se cuenta cuántos periodos hay por año. Todos deberían tener el mismo número de meses.</span>
+<span id="cb22-157"><a href="#cb22-157" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-160"><a href="#cb22-160" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-161"><a href="#cb22-161" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: datos-mensuales</span></span>
+<span id="cb22-162"><a href="#cb22-162" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-163"><a href="#cb22-163" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-164"><a href="#cb22-164" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> <span class="st">"Unidad 2. Probabilidad/outputs/Historicos Temperatura Media Clima.xlsx"</span> <span class="sc">|&gt;</span> </span>
+<span id="cb22-165"><a href="#cb22-165" aria-hidden="true" tabindex="-1"></a>  readxl<span class="sc">::</span><span class="fu">read_excel</span>()</span>
+<span id="cb22-166"><a href="#cb22-166" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-167"><a href="#cb22-167" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-168"><a href="#cb22-168" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span> </span>
+<span id="cb22-169"><a href="#cb22-169" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(</span>
+<span id="cb22-170"><a href="#cb22-170" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span>Estado,</span>
+<span id="cb22-171"><a href="#cb22-171" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"Fecha"</span>,</span>
+<span id="cb22-172"><a href="#cb22-172" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"Temperatura"</span></span>
+<span id="cb22-173"><a href="#cb22-173" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-174"><a href="#cb22-174" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-175"><a href="#cb22-175" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-176"><a href="#cb22-176" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span> </span>
+<span id="cb22-177"><a href="#cb22-177" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_wider</span>(</span>
+<span id="cb22-178"><a href="#cb22-178" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> Estado,</span>
+<span id="cb22-179"><a href="#cb22-179" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> Temperatura</span>
+<span id="cb22-180"><a href="#cb22-180" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-181"><a href="#cb22-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-182"><a href="#cb22-182" aria-hidden="true" tabindex="-1"></a>datos <span class="sc">|&gt;</span>  openxlsx<span class="sc">::</span><span class="fu">write.xlsx</span>(<span class="st">"Unidad 2. Probabilidad/outputs/Historicos Temperatura Media Clima para trabajar.xlsx"</span>)</span>
+<span id="cb22-183"><a href="#cb22-183" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-184"><a href="#cb22-184" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-185"><a href="#cb22-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-186"><a href="#cb22-186" aria-hidden="true" tabindex="-1"></a><span class="co"># Verificar </span></span>
+<span id="cb22-187"><a href="#cb22-187" aria-hidden="true" tabindex="-1"></a>datos<span class="sc">$</span>Fecha <span class="sc">|&gt;</span>  <span class="fu">sub</span>(<span class="at">pattern =</span> <span class="st">".*_"</span>, <span class="at">replacement =</span> <span class="st">""</span>) <span class="sc">|&gt;</span>  <span class="fu">table</span>() <span class="sc">|&gt;</span>  <span class="fu">sort</span>()</span>
+<span id="cb22-188"><a href="#cb22-188" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-189"><a href="#cb22-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-190"><a href="#cb22-190" aria-hidden="true" tabindex="-1"></a><span class="fu">### Datos anuales</span></span>
+<span id="cb22-191"><a href="#cb22-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-192"><a href="#cb22-192" aria-hidden="true" tabindex="-1"></a>Se repite el mismo procedimiento con el archivo de temperaturas anuales. La diferencia es que aquí la columna <span class="in">`Fecha`</span> contiene textos como <span class="in">`"Anual 1993"`</span>, por lo que se elimina la palabra <span class="in">`"Anual"`</span> y se convierte el resto a número. Así <span class="in">`Fecha`</span> queda como un año numérico (1993, 1994, …). El resultado se guarda como <span class="in">`Historicos Temperatura Media Clima Anual para trabajar.xlsx`</span>, que es el archivo que se usa en las secciones siguientes.</span>
+<span id="cb22-193"><a href="#cb22-193" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-196"><a href="#cb22-196" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-197"><a href="#cb22-197" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: datos-anuales</span></span>
+<span id="cb22-198"><a href="#cb22-198" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb22-199"><a href="#cb22-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-200"><a href="#cb22-200" aria-hidden="true" tabindex="-1"></a><span class="do">#############</span></span>
+<span id="cb22-201"><a href="#cb22-201" aria-hidden="true" tabindex="-1"></a><span class="do">### Anual </span><span class="al">###</span></span>
+<span id="cb22-202"><a href="#cb22-202" aria-hidden="true" tabindex="-1"></a><span class="do">#############</span></span>
+<span id="cb22-203"><a href="#cb22-203" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> <span class="st">"Unidad 2. Probabilidad/outputs/Historicos Temperatura Anual Media Clima.xlsx"</span> <span class="sc">|&gt;</span> </span>
+<span id="cb22-204"><a href="#cb22-204" aria-hidden="true" tabindex="-1"></a>  readxl<span class="sc">::</span><span class="fu">read_excel</span>()</span>
+<span id="cb22-205"><a href="#cb22-205" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-206"><a href="#cb22-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-207"><a href="#cb22-207" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span> </span>
+<span id="cb22-208"><a href="#cb22-208" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(</span>
+<span id="cb22-209"><a href="#cb22-209" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span>Estado,</span>
+<span id="cb22-210"><a href="#cb22-210" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"Fecha"</span>,</span>
+<span id="cb22-211"><a href="#cb22-211" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"Temperatura"</span></span>
+<span id="cb22-212"><a href="#cb22-212" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-213"><a href="#cb22-213" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-214"><a href="#cb22-214" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-215"><a href="#cb22-215" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span> </span>
+<span id="cb22-216"><a href="#cb22-216" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_wider</span>(</span>
+<span id="cb22-217"><a href="#cb22-217" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> Estado,</span>
+<span id="cb22-218"><a href="#cb22-218" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> Temperatura</span>
+<span id="cb22-219"><a href="#cb22-219" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-220"><a href="#cb22-220" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-221"><a href="#cb22-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-222"><a href="#cb22-222" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span> </span>
+<span id="cb22-223"><a href="#cb22-223" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">Fecha =</span> Fecha <span class="sc">|&gt;</span>  <span class="fu">gsub</span>(<span class="at">pattern =</span> <span class="st">"Anual"</span>, <span class="at">replacement =</span> <span class="st">""</span>) <span class="sc">|&gt;</span>  stringr<span class="sc">::</span><span class="fu">str_squish</span>() <span class="sc">|&gt;</span>  <span class="fu">as.numeric</span>())</span>
+<span id="cb22-224"><a href="#cb22-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-225"><a href="#cb22-225" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-226"><a href="#cb22-226" aria-hidden="true" tabindex="-1"></a>datos <span class="sc">|&gt;</span>  openxlsx<span class="sc">::</span><span class="fu">write.xlsx</span>(<span class="st">"Unidad 2. Probabilidad/outputs/Historicos Temperatura Media Clima Anual para trabajar.xlsx"</span>)</span>
+<span id="cb22-227"><a href="#cb22-227" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-228"><a href="#cb22-228" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-229"><a href="#cb22-229" aria-hidden="true" tabindex="-1"></a><span class="fu">## Mínimos cuadrados</span></span>
+<span id="cb22-230"><a href="#cb22-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-231"><a href="#cb22-231" aria-hidden="true" tabindex="-1"></a>A partir de aquí **el código sí se ejecuta** al generar el documento. Se ajustan tres modelos polinomiales a la temperatura media anual de **Aguascalientes**:</span>
+<span id="cb22-232"><a href="#cb22-232" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-233"><a href="#cb22-233" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb22-234"><a href="#cb22-234" aria-hidden="true" tabindex="-1"></a>\text{Lineal: } Y = \beta_0 + \beta_1 t</span>
+<span id="cb22-235"><a href="#cb22-235" aria-hidden="true" tabindex="-1"></a>\qquad</span>
+<span id="cb22-236"><a href="#cb22-236" aria-hidden="true" tabindex="-1"></a>\text{Cuadrático: } Y = \beta_0 + \beta_1 t + \beta_2 t^2</span>
+<span id="cb22-237"><a href="#cb22-237" aria-hidden="true" tabindex="-1"></a>\qquad</span>
+<span id="cb22-238"><a href="#cb22-238" aria-hidden="true" tabindex="-1"></a>\text{Cúbico: } Y = \beta_0 + \beta_1 t + \beta_2 t^2 + \beta_3 t^3</span>
+<span id="cb22-239"><a href="#cb22-239" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb22-240"><a href="#cb22-240" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-241"><a href="#cb22-241" aria-hidden="true" tabindex="-1"></a>donde $t$ es el "año computacional" (1, 2, 3, …). Los coeficientes se obtienen resolviendo las **ecuaciones normales** $A\,\beta = b$, en las que cada entrada de $A$ es una suma de potencias de $t$ y cada entrada de $b$ es una suma de potencias de $t$ multiplicadas por la temperatura $y$.</span>
+<span id="cb22-242"><a href="#cb22-242" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-243"><a href="#cb22-243" aria-hidden="true" tabindex="-1"></a><span class="fu">### Preparación de los datos</span></span>
+<span id="cb22-244"><a href="#cb22-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-245"><a href="#cb22-245" aria-hidden="true" tabindex="-1"></a>Se leen los datos anuales ya estructurados y se conserva únicamente la columna <span class="in">`Aguascalientes`</span>, que se renombra como <span class="in">`Media`</span>. Se crea el **año computacional** $t$ (1, 2, …, n) con <span class="in">`row_number()`</span> y se calculan las columnas auxiliares $t\cdot y$, $t^2\cdot y$ y $t^3\cdot y$, necesarias para el lado derecho de las ecuaciones normales.</span>
+<span id="cb22-246"><a href="#cb22-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-249"><a href="#cb22-249" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-250"><a href="#cb22-250" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: preparacion</span></span>
+<span id="cb22-251"><a href="#cb22-251" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-252"><a href="#cb22-252" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> <span class="st">"../../outputs/Historicos Temperatura Media Clima Anual para trabajar.xlsx"</span> <span class="sc">|&gt;</span> </span>
+<span id="cb22-253"><a href="#cb22-253" aria-hidden="true" tabindex="-1"></a>  readxl<span class="sc">::</span><span class="fu">read_excel</span>()</span>
+<span id="cb22-254"><a href="#cb22-254" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-255"><a href="#cb22-255" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-256"><a href="#cb22-256" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span></span>
+<span id="cb22-257"><a href="#cb22-257" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(Fecha, Aguascalientes) <span class="sc">|&gt;</span></span>
+<span id="cb22-258"><a href="#cb22-258" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">Media =</span> Aguascalientes) <span class="sc">|&gt;</span></span>
+<span id="cb22-259"><a href="#cb22-259" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb22-260"><a href="#cb22-260" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span> <span class="ot">=</span> dplyr<span class="sc">::</span><span class="fu">row_number</span>()</span>
+<span id="cb22-261"><a href="#cb22-261" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb22-262"><a href="#cb22-262" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">relocate</span>(<span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span>, <span class="at">.after =</span> Fecha)</span>
+<span id="cb22-263"><a href="#cb22-263" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-264"><a href="#cb22-264" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span></span>
+<span id="cb22-265"><a href="#cb22-265" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb22-266"><a href="#cb22-266" aria-hidden="true" tabindex="-1"></a>    <span class="at">yt   =</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span>    <span class="sc">*</span> Media,</span>
+<span id="cb22-267"><a href="#cb22-267" aria-hidden="true" tabindex="-1"></a>    <span class="at">yt_2 =</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">2</span>  <span class="sc">*</span> Media,</span>
+<span id="cb22-268"><a href="#cb22-268" aria-hidden="true" tabindex="-1"></a>    <span class="at">yt_3 =</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">3</span>  <span class="sc">*</span> Media</span>
+<span id="cb22-269"><a href="#cb22-269" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-270"><a href="#cb22-270" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-271"><a href="#cb22-271" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(datos)</span>
+<span id="cb22-272"><a href="#cb22-272" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-273"><a href="#cb22-273" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-274"><a href="#cb22-274" aria-hidden="true" tabindex="-1"></a><span class="fu">### Sumas necesarias</span></span>
+<span id="cb22-275"><a href="#cb22-275" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-276"><a href="#cb22-276" aria-hidden="true" tabindex="-1"></a>Se calculan el número de observaciones $n$, las sumas de potencias de $t$ (de $\sum t$ hasta $\sum t^6$) y las sumas $\sum y$, $\sum ty$, $\sum t^2 y$ y $\sum t^3 y$. Con estas cantidades se arman todos los sistemas de ecuaciones.</span>
+<span id="cb22-277"><a href="#cb22-277" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-280"><a href="#cb22-280" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-281"><a href="#cb22-281" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: sumas</span></span>
+<span id="cb22-282"><a href="#cb22-282" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-283"><a href="#cb22-283" aria-hidden="true" tabindex="-1"></a>n <span class="ot">=</span> <span class="fu">nrow</span>(datos)                                          </span>
+<span id="cb22-284"><a href="#cb22-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-285"><a href="#cb22-285" aria-hidden="true" tabindex="-1"></a>t_1 <span class="ot">=</span> datos<span class="sc">$</span><span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span> <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb22-286"><a href="#cb22-286" aria-hidden="true" tabindex="-1"></a>t_2 <span class="ot">=</span> (datos<span class="sc">$</span><span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">2</span>) <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb22-287"><a href="#cb22-287" aria-hidden="true" tabindex="-1"></a>t_3 <span class="ot">=</span> (datos<span class="sc">$</span><span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">3</span>) <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb22-288"><a href="#cb22-288" aria-hidden="true" tabindex="-1"></a>t_4 <span class="ot">=</span> (datos<span class="sc">$</span><span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">4</span>) <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb22-289"><a href="#cb22-289" aria-hidden="true" tabindex="-1"></a>t_5 <span class="ot">=</span> (datos<span class="sc">$</span><span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">5</span>) <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb22-290"><a href="#cb22-290" aria-hidden="true" tabindex="-1"></a>t_6 <span class="ot">=</span> (datos<span class="sc">$</span><span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">6</span>) <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb22-291"><a href="#cb22-291" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-292"><a href="#cb22-292" aria-hidden="true" tabindex="-1"></a>y    <span class="ot">=</span> datos<span class="sc">$</span>Media <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb22-293"><a href="#cb22-293" aria-hidden="true" tabindex="-1"></a>yt   <span class="ot">=</span> datos<span class="sc">$</span>yt    <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb22-294"><a href="#cb22-294" aria-hidden="true" tabindex="-1"></a>yt_2 <span class="ot">=</span> datos<span class="sc">$</span>yt_2  <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb22-295"><a href="#cb22-295" aria-hidden="true" tabindex="-1"></a>yt_3 <span class="ot">=</span> datos<span class="sc">$</span>yt_3  <span class="sc">|&gt;</span> <span class="fu">sum</span>(<span class="at">na.rm =</span> T)</span>
+<span id="cb22-296"><a href="#cb22-296" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-297"><a href="#cb22-297" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-298"><a href="#cb22-298" aria-hidden="true" tabindex="-1"></a><span class="fu">### Modelo lineal</span></span>
+<span id="cb22-299"><a href="#cb22-299" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-300"><a href="#cb22-300" aria-hidden="true" tabindex="-1"></a>Sistema de 2 × 2. El resultado <span class="in">`x_lineal`</span> contiene $(\beta_0, \beta_1)$.</span>
+<span id="cb22-301"><a href="#cb22-301" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-302"><a href="#cb22-302" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb22-303"><a href="#cb22-303" aria-hidden="true" tabindex="-1"></a>\begin{pmatrix} n &amp; \sum t <span class="sc">\\</span> \sum t &amp; \sum t^2 \end{pmatrix}</span>
+<span id="cb22-304"><a href="#cb22-304" aria-hidden="true" tabindex="-1"></a>\begin{pmatrix} \beta_0 <span class="sc">\\</span> \beta_1 \end{pmatrix}</span>
+<span id="cb22-305"><a href="#cb22-305" aria-hidden="true" tabindex="-1"></a>=</span>
+<span id="cb22-306"><a href="#cb22-306" aria-hidden="true" tabindex="-1"></a>\begin{pmatrix} \sum y <span class="sc">\\</span> \sum ty \end{pmatrix}</span>
+<span id="cb22-307"><a href="#cb22-307" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb22-308"><a href="#cb22-308" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-311"><a href="#cb22-311" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-312"><a href="#cb22-312" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: modelo-lineal</span></span>
+<span id="cb22-313"><a href="#cb22-313" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-314"><a href="#cb22-314" aria-hidden="true" tabindex="-1"></a><span class="co"># lineal</span></span>
+<span id="cb22-315"><a href="#cb22-315" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-316"><a href="#cb22-316" aria-hidden="true" tabindex="-1"></a>A_lineal <span class="ot">=</span> <span class="fu">matrix</span>(</span>
+<span id="cb22-317"><a href="#cb22-317" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(n,   t_1,</span>
+<span id="cb22-318"><a href="#cb22-318" aria-hidden="true" tabindex="-1"></a>    t_1, t_2),</span>
+<span id="cb22-319"><a href="#cb22-319" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> T</span>
+<span id="cb22-320"><a href="#cb22-320" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-321"><a href="#cb22-321" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-322"><a href="#cb22-322" aria-hidden="true" tabindex="-1"></a>b_lineal <span class="ot">=</span> <span class="fu">c</span>(y, yt)</span>
+<span id="cb22-323"><a href="#cb22-323" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-324"><a href="#cb22-324" aria-hidden="true" tabindex="-1"></a>x_lineal <span class="ot">=</span> <span class="fu">solve</span>(A_lineal) <span class="sc">%*%</span> b_lineal</span>
+<span id="cb22-325"><a href="#cb22-325" aria-hidden="true" tabindex="-1"></a>x_lineal</span>
+<span id="cb22-326"><a href="#cb22-326" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-327"><a href="#cb22-327" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-328"><a href="#cb22-328" aria-hidden="true" tabindex="-1"></a><span class="fu">### Modelo cuadrático</span></span>
+<span id="cb22-329"><a href="#cb22-329" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-330"><a href="#cb22-330" aria-hidden="true" tabindex="-1"></a>Sistema de 3 × 3. El resultado <span class="in">`x_cuadratico`</span> contiene $(\beta_0, \beta_1, \beta_2)$.</span>
+<span id="cb22-331"><a href="#cb22-331" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-332"><a href="#cb22-332" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb22-333"><a href="#cb22-333" aria-hidden="true" tabindex="-1"></a>\begin{pmatrix} n &amp; \sum t &amp; \sum t^2 <span class="sc">\\</span> \sum t &amp; \sum t^2 &amp; \sum t^3 <span class="sc">\\</span> \sum t^2 &amp; \sum t^3 &amp; \sum t^4 \end{pmatrix}</span>
+<span id="cb22-334"><a href="#cb22-334" aria-hidden="true" tabindex="-1"></a>\begin{pmatrix} \beta_0 <span class="sc">\\</span> \beta_1 <span class="sc">\\</span> \beta_2 \end{pmatrix}</span>
+<span id="cb22-335"><a href="#cb22-335" aria-hidden="true" tabindex="-1"></a>=</span>
+<span id="cb22-336"><a href="#cb22-336" aria-hidden="true" tabindex="-1"></a>\begin{pmatrix} \sum y <span class="sc">\\</span> \sum ty <span class="sc">\\</span> \sum t^2 y \end{pmatrix}</span>
+<span id="cb22-337"><a href="#cb22-337" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb22-338"><a href="#cb22-338" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-341"><a href="#cb22-341" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-342"><a href="#cb22-342" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: modelo-cuadratico</span></span>
+<span id="cb22-343"><a href="#cb22-343" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-344"><a href="#cb22-344" aria-hidden="true" tabindex="-1"></a><span class="co"># Caso cuadrático</span></span>
+<span id="cb22-345"><a href="#cb22-345" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-346"><a href="#cb22-346" aria-hidden="true" tabindex="-1"></a>A_cuadratico <span class="ot">=</span> <span class="fu">matrix</span>(</span>
+<span id="cb22-347"><a href="#cb22-347" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(n,   t_1, t_2,</span>
+<span id="cb22-348"><a href="#cb22-348" aria-hidden="true" tabindex="-1"></a>    t_1, t_2, t_3,</span>
+<span id="cb22-349"><a href="#cb22-349" aria-hidden="true" tabindex="-1"></a>    t_2, t_3, t_4),</span>
+<span id="cb22-350"><a href="#cb22-350" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">byrow =</span> T</span>
+<span id="cb22-351"><a href="#cb22-351" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-352"><a href="#cb22-352" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-353"><a href="#cb22-353" aria-hidden="true" tabindex="-1"></a>b_cuadratico <span class="ot">=</span> <span class="fu">c</span>(y, yt, yt_2)</span>
+<span id="cb22-354"><a href="#cb22-354" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-355"><a href="#cb22-355" aria-hidden="true" tabindex="-1"></a>x_cuadratico <span class="ot">=</span> <span class="fu">solve</span>(A_cuadratico) <span class="sc">%*%</span> b_cuadratico</span>
+<span id="cb22-356"><a href="#cb22-356" aria-hidden="true" tabindex="-1"></a>x_cuadratico</span>
+<span id="cb22-357"><a href="#cb22-357" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-358"><a href="#cb22-358" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-359"><a href="#cb22-359" aria-hidden="true" tabindex="-1"></a><span class="fu">### Modelo cúbico</span></span>
+<span id="cb22-360"><a href="#cb22-360" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-361"><a href="#cb22-361" aria-hidden="true" tabindex="-1"></a>Sistema de 4 × 4. El resultado <span class="in">`x_cubico`</span> contiene $(\beta_0, \beta_1, \beta_2, \beta_3)$.</span>
+<span id="cb22-362"><a href="#cb22-362" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-363"><a href="#cb22-363" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb22-364"><a href="#cb22-364" aria-hidden="true" tabindex="-1"></a>\begin{pmatrix} n &amp; \sum t &amp; \sum t^2 &amp; \sum t^3 <span class="sc">\\</span> \sum t &amp; \sum t^2 &amp; \sum t^3 &amp; \sum t^4 <span class="sc">\\</span> \sum t^2 &amp; \sum t^3 &amp; \sum t^4 &amp; \sum t^5 <span class="sc">\\</span> \sum t^3 &amp; \sum t^4 &amp; \sum t^5 &amp; \sum t^6 \end{pmatrix}</span>
+<span id="cb22-365"><a href="#cb22-365" aria-hidden="true" tabindex="-1"></a>\begin{pmatrix} \beta_0 <span class="sc">\\</span> \beta_1 <span class="sc">\\</span> \beta_2 <span class="sc">\\</span> \beta_3 \end{pmatrix}</span>
+<span id="cb22-366"><a href="#cb22-366" aria-hidden="true" tabindex="-1"></a>=</span>
+<span id="cb22-367"><a href="#cb22-367" aria-hidden="true" tabindex="-1"></a>\begin{pmatrix} \sum y <span class="sc">\\</span> \sum ty <span class="sc">\\</span> \sum t^2 y <span class="sc">\\</span> \sum t^3 y \end{pmatrix}</span>
+<span id="cb22-368"><a href="#cb22-368" aria-hidden="true" tabindex="-1"></a>$$</span>
+<span id="cb22-369"><a href="#cb22-369" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-372"><a href="#cb22-372" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-373"><a href="#cb22-373" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: modelo-cubico</span></span>
+<span id="cb22-374"><a href="#cb22-374" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-375"><a href="#cb22-375" aria-hidden="true" tabindex="-1"></a><span class="co"># Caso cúbico</span></span>
+<span id="cb22-376"><a href="#cb22-376" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-377"><a href="#cb22-377" aria-hidden="true" tabindex="-1"></a>A_cubico <span class="ot">=</span> <span class="fu">matrix</span>(</span>
+<span id="cb22-378"><a href="#cb22-378" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(n,   t_1, t_2, t_3,</span>
+<span id="cb22-379"><a href="#cb22-379" aria-hidden="true" tabindex="-1"></a>    t_1, t_2, t_3, t_4,</span>
+<span id="cb22-380"><a href="#cb22-380" aria-hidden="true" tabindex="-1"></a>    t_2, t_3, t_4, t_5,</span>
+<span id="cb22-381"><a href="#cb22-381" aria-hidden="true" tabindex="-1"></a>    t_3, t_4, t_5, t_6),</span>
+<span id="cb22-382"><a href="#cb22-382" aria-hidden="true" tabindex="-1"></a>  <span class="at">nrow =</span> <span class="dv">4</span>, <span class="at">ncol =</span> <span class="dv">4</span>, <span class="at">byrow =</span> T</span>
+<span id="cb22-383"><a href="#cb22-383" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-384"><a href="#cb22-384" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-385"><a href="#cb22-385" aria-hidden="true" tabindex="-1"></a>b_cubico <span class="ot">=</span> <span class="fu">c</span>(y, yt, yt_2, yt_3)</span>
+<span id="cb22-386"><a href="#cb22-386" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-387"><a href="#cb22-387" aria-hidden="true" tabindex="-1"></a>x_cubico <span class="ot">=</span> <span class="fu">solve</span>(A_cubico) <span class="sc">%*%</span> b_cubico</span>
+<span id="cb22-388"><a href="#cb22-388" aria-hidden="true" tabindex="-1"></a>x_cubico</span>
+<span id="cb22-389"><a href="#cb22-389" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-390"><a href="#cb22-390" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-391"><a href="#cb22-391" aria-hidden="true" tabindex="-1"></a><span class="fu">### Ecuaciones ajustadas</span></span>
+<span id="cb22-392"><a href="#cb22-392" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-393"><a href="#cb22-393" aria-hidden="true" tabindex="-1"></a>Con los coeficientes obtenidos se calcula el valor ajustado de cada modelo para cada año (<span class="in">`ajuste_lineal`</span>, <span class="in">`ajuste_cuadratico`</span>, <span class="in">`ajuste_cubico`</span>) y se imprimen las tres ecuaciones con los coeficientes redondeados a 4 decimales.</span>
+<span id="cb22-394"><a href="#cb22-394" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-397"><a href="#cb22-397" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-398"><a href="#cb22-398" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: ecuaciones</span></span>
+<span id="cb22-399"><a href="#cb22-399" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-400"><a href="#cb22-400" aria-hidden="true" tabindex="-1"></a>datos <span class="ot">=</span> datos <span class="sc">|&gt;</span></span>
+<span id="cb22-401"><a href="#cb22-401" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb22-402"><a href="#cb22-402" aria-hidden="true" tabindex="-1"></a>    <span class="at">ajuste_lineal =</span> x_lineal[<span class="dv">1</span>, <span class="dv">1</span>] <span class="sc">+</span></span>
+<span id="cb22-403"><a href="#cb22-403" aria-hidden="true" tabindex="-1"></a>      x_lineal[<span class="dv">2</span>, <span class="dv">1</span>] <span class="sc">*</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span>,</span>
+<span id="cb22-404"><a href="#cb22-404" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-405"><a href="#cb22-405" aria-hidden="true" tabindex="-1"></a>    <span class="at">ajuste_cuadratico =</span> x_cuadratico[<span class="dv">1</span>, <span class="dv">1</span>] <span class="sc">+</span></span>
+<span id="cb22-406"><a href="#cb22-406" aria-hidden="true" tabindex="-1"></a>      x_cuadratico[<span class="dv">2</span>, <span class="dv">1</span>] <span class="sc">*</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span> <span class="sc">+</span></span>
+<span id="cb22-407"><a href="#cb22-407" aria-hidden="true" tabindex="-1"></a>      x_cuadratico[<span class="dv">3</span>, <span class="dv">1</span>] <span class="sc">*</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">2</span>,</span>
+<span id="cb22-408"><a href="#cb22-408" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb22-409"><a href="#cb22-409" aria-hidden="true" tabindex="-1"></a>    <span class="at">ajuste_cubico =</span> x_cubico[<span class="dv">1</span>, <span class="dv">1</span>] <span class="sc">+</span></span>
+<span id="cb22-410"><a href="#cb22-410" aria-hidden="true" tabindex="-1"></a>      x_cubico[<span class="dv">2</span>, <span class="dv">1</span>] <span class="sc">*</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span> <span class="sc">+</span></span>
+<span id="cb22-411"><a href="#cb22-411" aria-hidden="true" tabindex="-1"></a>      x_cubico[<span class="dv">3</span>, <span class="dv">1</span>] <span class="sc">*</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span></span>
+<span id="cb22-412"><a href="#cb22-412" aria-hidden="true" tabindex="-1"></a>      x_cubico[<span class="dv">4</span>, <span class="dv">1</span>] <span class="sc">*</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span><span class="sc">^</span><span class="dv">3</span></span>
+<span id="cb22-413"><a href="#cb22-413" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-414"><a href="#cb22-414" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-415"><a href="#cb22-415" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-416"><a href="#cb22-416" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-417"><a href="#cb22-417" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Ecuación lineal:    Y ="</span>, <span class="fu">round</span>(x_lineal[<span class="dv">1</span>,<span class="dv">1</span>], <span class="dv">4</span>), <span class="st">"+"</span>, <span class="fu">round</span>(x_lineal[<span class="dv">2</span>,<span class="dv">1</span>], <span class="dv">4</span>), <span class="st">"* t</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb22-418"><a href="#cb22-418" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-419"><a href="#cb22-419" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Ecuación cuadrática: Y ="</span>, <span class="fu">round</span>(x_cuadratico[<span class="dv">1</span>,<span class="dv">1</span>], <span class="dv">4</span>), <span class="st">"+"</span>, <span class="fu">round</span>(x_cuadratico[<span class="dv">2</span>,<span class="dv">1</span>], <span class="dv">4</span>),</span>
+<span id="cb22-420"><a href="#cb22-420" aria-hidden="true" tabindex="-1"></a>    <span class="st">"* t +"</span>, <span class="fu">round</span>(x_cuadratico[<span class="dv">3</span>,<span class="dv">1</span>], <span class="dv">4</span>), <span class="st">"* t^2</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb22-421"><a href="#cb22-421" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-422"><a href="#cb22-422" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Ecuación cúbica:    Y ="</span>, <span class="fu">round</span>(x_cubico[<span class="dv">1</span>,<span class="dv">1</span>], <span class="dv">4</span>), <span class="st">"+"</span>, <span class="fu">round</span>(x_cubico[<span class="dv">2</span>,<span class="dv">1</span>], <span class="dv">4</span>),</span>
+<span id="cb22-423"><a href="#cb22-423" aria-hidden="true" tabindex="-1"></a>    <span class="st">"* t +"</span>, <span class="fu">round</span>(x_cubico[<span class="dv">3</span>,<span class="dv">1</span>], <span class="dv">4</span>), <span class="st">"* t^2 +"</span>, <span class="fu">round</span>(x_cubico[<span class="dv">4</span>,<span class="dv">1</span>], <span class="dv">4</span>), <span class="st">"* t^3</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb22-424"><a href="#cb22-424" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-425"><a href="#cb22-425" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-426"><a href="#cb22-426" aria-hidden="true" tabindex="-1"></a><span class="fu">## Gráficos</span></span>
+<span id="cb22-427"><a href="#cb22-427" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-428"><a href="#cb22-428" aria-hidden="true" tabindex="-1"></a>Para comparar visualmente los tres modelos con los datos observados, primero se transforma la tabla a **formato largo**: las tres columnas de ajuste se convierten en una sola columna <span class="in">`Ajuste`</span>, con una columna <span class="in">`Modelo`</span> que indica a cuál corresponde (Lineal, Cuadrático o Cúbico). Este formato es el que necesita <span class="in">`ggplot2`</span> para dibujar una curva por modelo.</span>
+<span id="cb22-429"><a href="#cb22-429" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-432"><a href="#cb22-432" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-433"><a href="#cb22-433" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: datos-grafica</span></span>
+<span id="cb22-434"><a href="#cb22-434" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-435"><a href="#cb22-435" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb22-436"><a href="#cb22-436" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-437"><a href="#cb22-437" aria-hidden="true" tabindex="-1"></a>datos_grafica <span class="ot">=</span> datos <span class="sc">|&gt;</span></span>
+<span id="cb22-438"><a href="#cb22-438" aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(</span>
+<span id="cb22-439"><a href="#cb22-439" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">c</span>(ajuste_lineal, ajuste_cuadratico, ajuste_cubico),</span>
+<span id="cb22-440"><a href="#cb22-440" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to  =</span> <span class="st">"Modelo"</span>,</span>
+<span id="cb22-441"><a href="#cb22-441" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"Ajuste"</span></span>
+<span id="cb22-442"><a href="#cb22-442" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb22-443"><a href="#cb22-443" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb22-444"><a href="#cb22-444" aria-hidden="true" tabindex="-1"></a>    <span class="at">Modelo =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
+<span id="cb22-445"><a href="#cb22-445" aria-hidden="true" tabindex="-1"></a>      Modelo <span class="sc">==</span> <span class="st">"ajuste_lineal"</span>     <span class="sc">~</span> <span class="st">"Lineal"</span>,</span>
+<span id="cb22-446"><a href="#cb22-446" aria-hidden="true" tabindex="-1"></a>      Modelo <span class="sc">==</span> <span class="st">"ajuste_cuadratico"</span> <span class="sc">~</span> <span class="st">"Cuadrático"</span>,</span>
+<span id="cb22-447"><a href="#cb22-447" aria-hidden="true" tabindex="-1"></a>      Modelo <span class="sc">==</span> <span class="st">"ajuste_cubico"</span>     <span class="sc">~</span> <span class="st">"Cúbico"</span></span>
+<span id="cb22-448"><a href="#cb22-448" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-449"><a href="#cb22-449" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-450"><a href="#cb22-450" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb22-451"><a href="#cb22-451" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-452"><a href="#cb22-452" aria-hidden="true" tabindex="-1"></a><span class="fu">### Comparación de los modelos</span></span>
+<span id="cb22-453"><a href="#cb22-453" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-454"><a href="#cb22-454" aria-hidden="true" tabindex="-1"></a>El gráfico muestra los valores observados como puntos y cada modelo ajustado como una línea de distinto color. Se define una paleta manual para los modelos y se aplica un tema limpio (<span class="in">`theme_minimal`</span>) con título, subtítulo y leyenda inferior.</span>
+<span id="cb22-455"><a href="#cb22-455" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-458"><a href="#cb22-458" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb22-459"><a href="#cb22-459" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: grafico-ajustes</span></span>
+<span id="cb22-460"><a href="#cb22-460" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 9</span></span>
+<span id="cb22-461"><a href="#cb22-461" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 5.5</span></span>
+<span id="cb22-462"><a href="#cb22-462" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-align: center</span></span>
+<span id="cb22-463"><a href="#cb22-463" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-464"><a href="#cb22-464" aria-hidden="true" tabindex="-1"></a><span class="co"># Grafico</span></span>
+<span id="cb22-465"><a href="#cb22-465" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-466"><a href="#cb22-466" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-467"><a href="#cb22-467" aria-hidden="true" tabindex="-1"></a>colores_modelo <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb22-468"><a href="#cb22-468" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Lineal"</span>    <span class="ot">=</span> <span class="st">"#1f77b4"</span>,</span>
+<span id="cb22-469"><a href="#cb22-469" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Cuadrático"</span> <span class="ot">=</span> <span class="st">"#d62728"</span>,</span>
+<span id="cb22-470"><a href="#cb22-470" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Cúbico"</span>    <span class="ot">=</span> <span class="st">"#2ca02c"</span></span>
+<span id="cb22-471"><a href="#cb22-471" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-472"><a href="#cb22-472" aria-hidden="true" tabindex="-1"></a><span class="co"># Si tus niveles de "Modelo" tienen otros nombres, ajusta los names() de arriba</span></span>
+<span id="cb22-473"><a href="#cb22-473" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-474"><a href="#cb22-474" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(datos_grafica, <span class="fu">aes</span>(<span class="at">x =</span> <span class="st">`</span><span class="at">Anio computacional</span><span class="st">`</span>)) <span class="sc">+</span></span>
+<span id="cb22-475"><a href="#cb22-475" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Puntos observados</span></span>
+<span id="cb22-476"><a href="#cb22-476" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(</span>
+<span id="cb22-477"><a href="#cb22-477" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">y =</span> Media),</span>
+<span id="cb22-478"><a href="#cb22-478" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"grey20"</span>,</span>
+<span id="cb22-479"><a href="#cb22-479" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill  =</span> <span class="st">"white"</span>,</span>
+<span id="cb22-480"><a href="#cb22-480" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape =</span> <span class="dv">21</span>,</span>
+<span id="cb22-481"><a href="#cb22-481" aria-hidden="true" tabindex="-1"></a>    <span class="at">size  =</span> <span class="fl">2.5</span>,</span>
+<span id="cb22-482"><a href="#cb22-482" aria-hidden="true" tabindex="-1"></a>    <span class="at">stroke =</span> <span class="fl">0.8</span>,</span>
+<span id="cb22-483"><a href="#cb22-483" aria-hidden="true" tabindex="-1"></a>    <span class="at">alpha =</span> <span class="fl">0.9</span></span>
+<span id="cb22-484"><a href="#cb22-484" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb22-485"><a href="#cb22-485" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Curvas ajustadas</span></span>
+<span id="cb22-486"><a href="#cb22-486" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(</span>
+<span id="cb22-487"><a href="#cb22-487" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">y =</span> Ajuste, <span class="at">color =</span> Modelo),</span>
+<span id="cb22-488"><a href="#cb22-488" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">1.1</span></span>
+<span id="cb22-489"><a href="#cb22-489" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb22-490"><a href="#cb22-490" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> colores_modelo) <span class="sc">+</span></span>
+<span id="cb22-491"><a href="#cb22-491" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb22-492"><a href="#cb22-492" aria-hidden="true" tabindex="-1"></a>    <span class="at">title    =</span> <span class="st">"Ajuste por Mínimos Cuadrados - Temperatura Media Anual Aguascalientes"</span>,</span>
+<span id="cb22-493"><a href="#cb22-493" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Comparación de modelos lineal, cuadrático y cúbico"</span>,</span>
+<span id="cb22-494"><a href="#cb22-494" aria-hidden="true" tabindex="-1"></a>    <span class="at">x        =</span> <span class="st">"Año computacional (t)"</span>,</span>
+<span id="cb22-495"><a href="#cb22-495" aria-hidden="true" tabindex="-1"></a>    <span class="at">y        =</span> <span class="st">"Temperatura media (°C)"</span>,</span>
+<span id="cb22-496"><a href="#cb22-496" aria-hidden="true" tabindex="-1"></a>    <span class="at">color    =</span> <span class="st">"Modelo"</span>,</span>
+<span id="cb22-497"><a href="#cb22-497" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption  =</span> <span class="st">"Los puntos representan los valores originales; las líneas, los modelos."</span></span>
+<span id="cb22-498"><a href="#cb22-498" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb22-499"><a href="#cb22-499" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>, <span class="at">base_family =</span> <span class="st">"sans"</span>) <span class="sc">+</span></span>
+<span id="cb22-500"><a href="#cb22-500" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb22-501"><a href="#cb22-501" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title       =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">16</span>, <span class="at">margin =</span> <span class="fu">margin</span>(<span class="at">b =</span> <span class="dv">4</span>)),</span>
+<span id="cb22-502"><a href="#cb22-502" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.subtitle    =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"grey35"</span>, <span class="at">size =</span> <span class="dv">11</span>, <span class="at">margin =</span> <span class="fu">margin</span>(<span class="at">b =</span> <span class="dv">12</span>)),</span>
+<span id="cb22-503"><a href="#cb22-503" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.caption     =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"grey50"</span>, <span class="at">size =</span> <span class="fl">8.5</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">margin =</span> <span class="fu">margin</span>(<span class="at">t =</span> <span class="dv">10</span>)),</span>
+<span id="cb22-504"><a href="#cb22-504" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.title       =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">11</span>),</span>
+<span id="cb22-505"><a href="#cb22-505" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text        =</span> <span class="fu">element_text</span>(<span class="at">color =</span> <span class="st">"grey25"</span>),</span>
+<span id="cb22-506"><a href="#cb22-506" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position  =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb22-507"><a href="#cb22-507" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.title     =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb22-508"><a href="#cb22-508" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb22-509"><a href="#cb22-509" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major =</span> <span class="fu">element_line</span>(<span class="at">color =</span> <span class="st">"grey90"</span>, <span class="at">linewidth =</span> <span class="fl">0.4</span>),</span>
+<span id="cb22-510"><a href="#cb22-510" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.margin      =</span> <span class="fu">margin</span>(<span class="dv">15</span>, <span class="dv">15</span>, <span class="dv">10</span>, <span class="dv">15</span>)</span>
+<span id="cb22-511"><a href="#cb22-511" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb22-512"><a href="#cb22-512" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+</code></pre></div><button title="Copiar al portapapeles" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
