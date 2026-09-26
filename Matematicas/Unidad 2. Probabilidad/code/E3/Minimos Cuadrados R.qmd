@@ -405,7 +405,7 @@ cat("Ecuación cúbica:    Y =", round(x_cubico[1,1], 4), "+", round(x_cubico[2,
 
 ## Gráficos
 
-Para comparar visualmente los tres modelos con los datos observados, primero se transforma la tabla a **formato largo**: las tres columnas de ajuste se convierten en una sola columna `Ajuste`, con una columna `Modelo` que indica a cuál corresponde (Lineal, Cuadrático o Cúbico). Este formato es el que necesita `ggplot2` para dibujar una curva por modelo.
+Para comparar visualmente los tres modelos con los datos observados, primero se transforma la tabla a **formato largo**: las tres columnas de ajuste se convierten en una sola columna `Ajuste`, con una columna `Modelo` que indica a cuál corresponde (Lineal, Cuadrático o Cúbico).
 
 ```{r}
 #| label: datos-grafica
@@ -429,8 +429,7 @@ datos_grafica = datos |>
 
 ### Comparación de los modelos
 
-El gráfico muestra los valores observados como puntos y cada modelo ajustado como una línea de distinto color. Se define una paleta manual para los modelos y se aplica un tema limpio (`theme_minimal`) con título, subtítulo y leyenda inferior.
-
+El gráfico muestra los valores observados como puntos y cada modelo ajustado como una línea de distinto color. 
 ```{r}
 #| label: grafico-ajustes
 #| fig-width: 9

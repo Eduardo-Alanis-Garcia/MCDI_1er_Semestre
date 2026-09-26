@@ -13,6 +13,9 @@ datos = datos |>
   ) |>
   dplyr::relocate(`Anio computacional`, .after = Fecha)
 
+
+datos |>  openxlsx::write.xlsx("../../../../../Aguascalientes.xlsx")
+
 datos = datos |>
   dplyr::mutate(
     yt   = `Anio computacional`    * Media,
