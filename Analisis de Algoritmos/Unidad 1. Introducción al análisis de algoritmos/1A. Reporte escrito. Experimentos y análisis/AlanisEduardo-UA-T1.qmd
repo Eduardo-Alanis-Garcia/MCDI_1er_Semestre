@@ -12,13 +12,13 @@ format:
 jupyter: julia-1.12
 ---
 
+# Actividad: Vector vs. diccionario para mapas pequeños
+
 ## Introducción
 
 En esta actividad se compara el desempeño de dos estructuras de datos para representar un mapa de llaves enteras (`Int64`) a valores flotantes (`Float64`). La primera estructura es un vector de pares sin ordenar, en el que las operaciones se realizan mediante un recorrido lineal. La segunda estructura es un `Dict{Int64,Float64}`, que utiliza una tabla hash.
 
 El objetivo es comparar experimentalmente las operaciones `buscar`, `insertar!` y `borrar!` para diferentes tamaños de entrada. De esta manera, los resultados experimentales permiten observar el comportamiento de cada estructura en una computadora real.
-
-# Actividad: Vector vs. diccionario para mapas pequeños
 
 ## Implementación
 
@@ -501,7 +501,7 @@ mostrar_rangos(tabla_insertar)
 
 # Discusión
 
-Los tres experimentos son consistentes entre sí y con lo esperado teóricamente: para el rango de tamaños probado ($n$ entre 4 y 4096), `Dict` fue más rápido que el vector en el 100 % de los casos, en las tres operaciones evaluadas. Esto concuerda con el análisis asintótico habitual de estas estructuras, donde el vector sin ordenar tiene un costo $O(n)$ para `buscar`, `insertar!` y `borrar!` (por el recorrido lineal necesario), En cambio, la tabla hash implementada mediante `Dict` presenta un costo esperado de $O(1)$ para estas mismas operaciones, aunque este puede aumentar en el peor caso debido a las colisiones (Cormen et al., 2022).
+Los tres experimentos son consistentes entre sí y con lo esperado teóricamente: para el rango de tamaños probado ($n$ entre 4 y 4096), `Dict` fue más rápido que el vector en el 100 % de los casos, en las tres operaciones evaluadas. Esto concuerda con el análisis asintótico habitual de estas estructuras, donde el vector sin ordenar tiene un costo $O(n)$ para `buscar`, `insertar!` y `borrar!` (por el recorrido lineal necesario), mientras que la tabla hash del `Dict` tiene un costo esperado $O(1)$ para esas mismas operaciones, debido al costo del cálculo del hash y la eventual resolución de colisiones (Cormen et al., 2022).
 
 **Localidad de referencia.**  El vector que almacena los pares `Pair{Int64,Float64}` de manera que es posible recorrerlos de forma ordenada. Aunque esto puede representar una ventaja, en los experimentos realizados se observó que, al aumentar la cantidad de elementos, el tiempo necesario para recorrerlos también aumentó y esta ventaja no fue suficiente para compensar dicho costo.
 
