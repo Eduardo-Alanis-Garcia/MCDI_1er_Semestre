@@ -1,0 +1,18 @@
+2A. Práctica: Kmeans. Obtener el número de clusters correcto
+
+Lea el conjunto de datos del archivo kmeans-elbow.npy
+
+Aplique la técnica del codo para estimar el mejor parámetro 
+ del algoritmo k-means.
+
+Grafique la métrica silueta para diferentes valores de 
+ y compare con la técnica anterior.
+
+Eliga el parámetro 
+ que crea conveniente basado en los resutlados anteriores.
+
+Contesta la evaluación de esta práctica en el Aula Virtual.
+
+Nota. Puede leer el archivo con el siguiente código:
+
+X = np.load('<ruta>/kmeans-elbow.npy')

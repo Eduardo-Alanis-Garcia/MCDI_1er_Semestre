@@ -1,0 +1,53 @@
+Escribe el siguiente promnt de mejor manera :
+
+
+
+
+
+Tengo que realizar la siguiente actividad: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%202/tareas/01-kmeans-elbow.html
+
+Puedes resolverla considerando lo visto en clase y mis tareas anteriores:
+
+
+
+
+
+Visto en clase
+
+Unidad 1:
+
+Material: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%201/01-teoria%20de%20la%20informacion.html
+
+Notebook de ejemplos basicos: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%201/ejemplos.html
+
+
+
+Tareas unidad 1:
+
+Actividad 1A: https://github.com/Eduardo-Alanis-Garcia/MCDI_1er_Semestre/blob/main/Manejo%20y%20procesamiento%20de%20la%20informacion/Unidad%201.%20Teor%C3%ADa%20de%20la%20informaci%C3%B3n/Pr%C3%A1ctica%201A%20C%C3%A1lculo%20de%20frecuencias%20a%20nivel%20de%20un%20car%C3%A1cter/Pr%C3%A1ctica_1A_C%C3%A1lculo_de_frecuencias_a_nivel_de_un_car%C3%A1cter_EduardoAlanisGarcia.ipynb
+
+Actividad 1B: https://github.com/Eduardo-Alanis-Garcia/MCDI_1er_Semestre/blob/main/Manejo%20y%20procesamiento%20de%20la%20informacion/Unidad%201.%20Teor%C3%ADa%20de%20la%20informaci%C3%B3n/Pr%C3%A1ctica%201B%20C%C3%A1lculo%20de%20frecuencias%20a%20nivel%20de%20palabra/Pr%C3%A1ctica%201B%20C%C3%A1lculo%20de%20frecuencias%20a%20nivel%20de%20palabra_EduardoAlanisGarcia.ipynb
+
+Actividad 1C: https://github.com/Eduardo-Alanis-Garcia/MCDI_1er_Semestre/blob/main/Manejo%20y%20procesamiento%20de%20la%20informacion/Unidad%201.%20Teor%C3%ADa%20de%20la%20informaci%C3%B3n/Pr%C3%A1ctica%201C%20C%C3%A1lculo%20de%20entrop%C3%ADa/Pr%C3%A1ctica%201C%20C%C3%A1lculo%20de%20entrop%C3%ADa_EduardoAlanisGarcia.ipynb
+
+Actividad 1D: https://github.com/Eduardo-Alanis-Garcia/MCDI_1er_Semestre/blob/main/Manejo%20y%20procesamiento%20de%20la%20informacion/Unidad%201.%20Teor%C3%ADa%20de%20la%20informaci%C3%B3n/Pr%C3%A1ctica%201D%20Informaci%C3%B3n%20mutua/Pr%C3%A1ctica_1D_Informaci%C3%B3n_mutua_EduardoAlanisGarcia.ipynb
+
+
+
+Unidad 2:
+
+Material: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%202/01-preprocesado.html
+
+Ejemplo kmeans: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%202/ejemplo%2001-kmeans.html
+
+Ejemplo DBSCAN: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%202/ejemplo%2002-dbscan.html
+
+Ejemplo Evaluacion: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%202/ejemplo%2003-eval.html
+
+Ejemplo PCA: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%202/ejemplo%2004-pca.html
+
+
+
+
+Los datos se consumen de: 
+
