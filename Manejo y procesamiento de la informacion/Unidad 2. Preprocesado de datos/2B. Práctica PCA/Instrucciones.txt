@@ -1,0 +1,20 @@
+PCA para preprocesar datos
+ 
+El algoritmo PCA Se puede usar como un paso en el preprocesado de los datos. Si se va a aplicar un algoritmo de clustering, se aconseja primero disminuir la dimensión de los datos. Algoritmos como k-means tienen problemas de desempeño cuando se usan muchas dimensiones. Además, aplicar PCA ayuda a separar los datos de manera automática.
+
+En este ejercicio se usará el conjunto de datos MNIST para medir la calidad de los clusters con y sin PCA.
+
+Leer el conjunto MNIST.
+
+X, y = fetch_openml("mnist_784", return_X_y=True, as_frame=False)
+Usar sólo las imágenes con ceros o unos. Reescalar los datos usando StandardScaler. Aplicar PCA para reducir la dimensión a dos y graficar los puntos, el color de los puntos debe indicar la clase a la que pertenece.
+
+Aplicar k-means (con random_state=1) para separar los dos clusters antes y depués de aplicar PCA.
+Comparar la calidad de los clusters con la métrica rand_score de sklearn.
+Repetir lo mismo pero reducir la dimensión a 50.
+
+Dentro de un ciclo for aumentar el número de clases de 2 a 10.
+Aplicar StandardScaler.
+Aplciar kmeans (con random_state=1) con y sin PCA.
+Compararla calidad de los clusters con la métrica rand_score.
+Contesta la evaluación de esta práctica en el Aula Virtual.
