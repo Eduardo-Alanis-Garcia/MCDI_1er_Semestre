@@ -4,7 +4,7 @@ Escribe el siguiente promnt de mejor manera :
 
 
 
-Tengo que realizar la siguiente actividad: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%202/tareas/01-kmeans-elbow.html
+Tengo que realizar la siguiente actividad: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%202/tareas/02-pca.html
 
 Puedes resolverla considerando lo visto en clase y mis tareas anteriores:
 
@@ -48,10 +48,9 @@ Ejemplo PCA: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%20
 
 
 
+Tareas unidad 2:
 
-Los datos para trabajar se encuentran en: https://github.com/Eduardo-Alanis-Garcia/MCDI_1er_Semestre/blob/main/Manejo%20y%20procesamiento%20de%20la%20informacion/Unidad%202.%20Preprocesado%20de%20datos/Inputs/kmeans-elbow.npy
-
-
+Actividad 2A: https://github.com/Eduardo-Alanis-Garcia/MCDI_1er_Semestre/blob/main/Manejo%20y%20procesamiento%20de%20la%20informacion/Unidad%202.%20Preprocesado%20de%20datos/2A.%20Pr%C3%A1ctica%20Kmeans/Practica_2A_KMeans_EduardoAlanisGarcia.ipynb
 
 
 
