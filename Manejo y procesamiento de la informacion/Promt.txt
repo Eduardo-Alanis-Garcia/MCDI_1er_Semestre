@@ -49,5 +49,18 @@ Ejemplo PCA: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%20
 
 
 
-Los datos se consumen de: 
+Los datos para trabajar se encuentran en: https://github.com/Eduardo-Alanis-Garcia/MCDI_1er_Semestre/blob/main/Manejo%20y%20procesamiento%20de%20la%20informacion/Unidad%202.%20Preprocesado%20de%20datos/Inputs/kmeans-elbow.npy
 
+
+
+
+
+
+
+
+
+
+
+Para realizar la activad toma como referencia mis tareas, como suelo utilizar el código y mis lógicas de programación. Ademas que lo solicitado solo realízalo con las cosas vistas en clases o notas que te comparti y con cosas que utilizado dentro de mis tareas.
+
+Al final quiero que me devulvas el archivo .ipynb con la solución de la tarea.
