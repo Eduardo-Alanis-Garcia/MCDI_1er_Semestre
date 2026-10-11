@@ -1,0 +1,26 @@
+En esta actividad, detectar, a nivel básico, por medio de una medida de similitud, el plagio que hay dentro de un conjunto de documentos.
+
+Los datos son documentos de noticias adaptados a la tarea de detección de plagio. En el conjunto de datos del directorio “suspicious-documents”, hay documentos que tienen fragmentos plagiados de los documentos fuente “source-documents”, sin embargo, también hay otros documentos que simularon plagio pero no se plagió ningún párrafo de los documentos fuente.
+
+La tarea es encontrar el nivel de plagio entre los archivos del directorio “source-documents” y los archivos del directorio “suspicious-documents”.
+
+Crea un notebook para obtener la similitud entre dos documentos. Toma los documentos source-document0001.txt al source-document0010.txt de source-documents y por cada uno, encuentra los 10 archivos de suspicious-documents más parecidos. Indica los nombres y la similitud obtenida.
+
+Aplica los preprocesamientos: usa solo letras minúsculas, quita los siguientes caracteres “;:,.\-"‘/()[]¿?¡!{}~<>|«»-—’”, remueve stopwords y aplica un proceso de stemming para reducir el vocabulario.
+
+Nota: al usar la lista de stopwords para eliminarlas, si se aplicó stemming, aplicar stemming también a las stopwords debido a que alguna palabra podrían cambiar.
+
+Usa el stemmer de NLTK Porter (inglés). http://www.nltk.org/howto/stem.html
+
+Básicamente es usar:
+
+   from nltk.stem.porter import * 
+   stemmer = PorterStemmer() 
+   word = stemmer.stem('pages')
+word contendrá la palabra normalizada por medio de stemming (‘page’). Aplicar ese proceso a todos los textos.
+
+Para procesar la medida de similitud usar las medidas Jaccard y Dice
+
+Contesta la evaluación de esta práctica en el Aula Virtual.
+
+Los datos son archivos de texto plano UTF-8 en inglés:

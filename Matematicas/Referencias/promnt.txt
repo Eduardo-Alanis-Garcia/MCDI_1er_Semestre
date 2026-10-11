@@ -1,0 +1,18 @@
+Escribe el siguiente promnt de mejora manera:
+
+Puedes realizar la siguiente tarea que te acabo de compartir.
+
+Ademas te compartire mis demás tareas previas para que entiendas como hago mis redacciones, además de mi razonamiento matemático y como suelo escribir principalmente.
+Quiero que reutilices las misma plantilla que en mis tareas anteriores, únicamente que en este momento no hare uso de mi bibliografías asi que ese apartado se puede quitar por el momento.
+
+Lo mas importante y lo acabo de recalcar realiza la redacción como yo lo hago, además resuelve los ejercicios de manera mas detallada posible, en todo momento debes verificar que la solución es correcta y que todos los cálculos son adecuados. Ademas sigue el formato de tareas solicitado, igual te comparto las notas de clase que se supone que con esos conocimientos puedo resolver dichos ejercicios.
+
+Al final quiero que me regreses el archivo .tex recuerda que debes utilizar la plantilla que he estado usando en mis tareas anteriores. Igual quiero decirte que los enunciados los escribas tal cual como vienen en la tarea, no realices alguna modificación en el texto, tal cual como lo escribió la profesora.
+
+
+Considerasiones super importantes de nuevo:
+La redacción sea como yo lo hago en mis tareas anteriores
+Puedes usar el conocimiento de las notas de clase o de mis tareas anteriores
+Usar la misma plantilla que mis tareas anteriores
+No te debes inventar resultados o cuentas, todas deben ser verificadas y correctas
+Al final regresarme un archivo .tex

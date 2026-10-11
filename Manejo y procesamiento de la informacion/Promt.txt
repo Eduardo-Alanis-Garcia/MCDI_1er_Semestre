@@ -4,7 +4,7 @@ Escribe el siguiente promnt de mejor manera :
 
 
 
-Tengo que realizar la siguiente actividad: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%202/tareas/02-pca.html
+Tengo que realizar la siguiente actividad: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%203/tareas/Practica%203A.html
 
 Puedes resolverla considerando lo visto en clase y mis tareas anteriores:
 
@@ -52,7 +52,18 @@ Tareas unidad 2:
 
 Actividad 2A: https://github.com/Eduardo-Alanis-Garcia/MCDI_1er_Semestre/blob/main/Manejo%20y%20procesamiento%20de%20la%20informacion/Unidad%202.%20Preprocesado%20de%20datos/2A.%20Pr%C3%A1ctica%20Kmeans/Practica_2A_KMeans_EduardoAlanisGarcia.ipynb
 
+Actividad 2B: https://github.com/Eduardo-Alanis-Garcia/MCDI_1er_Semestre/blob/main/Manejo%20y%20procesamiento%20de%20la%20informacion/Unidad%202.%20Preprocesado%20de%20datos/2B.%20Pr%C3%A1ctica%20PCA/Practica_2B_PCA_EduardoAlanisGarcia.ipynb
 
+
+Unidad 3:
+
+Material: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%203/01-deep-learning.html
+
+Ejemplo de modelo CLIP: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%203/CLIP.html
+
+Video de uso del modelo CLIP: https://www.youtube.com/watch?v=AYMM0pWuCdw
+
+datos-3A.zip: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%203/tareas/datos-3A.zip
 
 
 

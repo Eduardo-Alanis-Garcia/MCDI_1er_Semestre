@@ -1,0 +1,46 @@
+En esta práctica se implementará la búsqueda por similaridad de texto. El conjunto de datos son títulos de noticias. Se usarán modelos de lenguaje para obtener los encajes del texto y formar la base de datos. Luego se harán consultas para buscar los elementos más cercanos y reportarlos.
+
+Lea el conjunto de datos: archivo_emojis_Elfinanciero.csv Se trabajará sólo con la columna title.
+
+Debe usar modelos de lenguaje para convertir los títulos en vectores y formar la base de datos S
+. Los modelos a usar son:
+
+Beto: “dccuchile/bert-base-spanish-wwm-cased”
+Robertuito: “pysentimiento/robertuito-base-cased”
+Usa las siguientes consultas para buscar los 5 elementos más cercanos en S
+. No se necesita ningún preprocesado ya que de esto se encarga el tokenizador.
+
+    ["Muerte de migrantes en un incendio en Ciudad Juárez",
+    "¿Qué tan sano es comer tacos de cabeza?",
+    "La crisis humanitaria de Estados Unidos",
+    "Lo que hay del otro laredo",
+    "¿Existe un acuerdo entre la banca tradicional y los nuevos jugadores?",
+    "Maribel Guardia afirma: Ya no le tengo miedo",
+    "Graban pelea en Xochimilco (Video)"]
+Por cada consulta, mostrar los cinco títulos de noticias más parecidos en S
+ usnado la métrica coseno e incluir el score de similaridad.
+
+Contesta la evaluación de esta práctica en el Aula Virtual.
+
+Puede leer los modelos con el código:
+
+device = "cuda:0" if torch.cuda.is_available() else "cpu"
+print(device)
+tokenizer = AutoTokenizer.from_pretrained(model_path)
+model = AutoModel.from_pretrained(model_path)
+model = model.to(device)
+Para obtener los encajes puede usar la siguiente función:
+
+def predict(text, bs=128):
+    output = []
+    for i in range(0, len(text), bs):
+        if i//bs%100==99:
+            print(i, "/", len(text))
+        tokens = tokenizer(text[i: i+bs], return_tensors="pt", padding='max_length', max_length=50, truncation=True)
+        t = {"input_ids": tokens['input_ids'].to(device), "attention_mask": tokens['attention_mask'].to(device)}
+
+        with torch.no_grad():
+            pred = model(**t).last_hidden_state[:,0].cpu()
+        output.append(pred)
+    output = torch.cat(output, dim=0)
+    return output
