@@ -4,7 +4,7 @@ Escribe el siguiente promnt de mejor manera :
 
 
 
-Tengo que realizar la siguiente actividad: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%203/tareas/Practica%203A.html
+Tengo que realizar la siguiente actividad: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%204/tareas/01-plagio.html
 
 Puedes resolverla considerando lo visto en clase y mis tareas anteriores:
 
@@ -66,8 +66,25 @@ Video de uso del modelo CLIP: https://www.youtube.com/watch?v=AYMM0pWuCdw
 datos-3A.zip: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%203/tareas/datos-3A.zip
 
 
+Tareas unidad 3: 
+Actividad 3A: https://github.com/Eduardo-Alanis-Garcia/MCDI_1er_Semestre/blob/main/Manejo%20y%20procesamiento%20de%20la%20informacion/Unidad%203.%20Modelos%20de%20deep%20learning/Practica_3A_Clasificaci%C3%B3n_Zero_shot_EduardoAlanisGarcia.ipynb
 
 
+Unidad 4: 
+
+Material: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%204/01-encajes-vectoriales.html
+
+Video: https://www.youtube.com/watch?v=5ZgVumzoq8k
+
+Ejemplo: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%204/Modelos%20de%20Lenguaje.html
+
+Archivos unidad 4:
+
+archivo_emojis_Elfinanciero.csv: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%204/tareas/archivo_emojis_Elfinanciero.csv
+
+source-documents.zip: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%204/tareas/source-documents.zip
+
+suspicious-documents.zip: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%204/tareas/suspicious-documents.zip
 
 
 
