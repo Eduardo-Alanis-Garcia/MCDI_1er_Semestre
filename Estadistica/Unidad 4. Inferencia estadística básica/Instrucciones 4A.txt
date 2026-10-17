@@ -1,3 +1,14 @@
+1. Realiza lo que te solicita cada ejercicio.
+
+2. Cuando existe código, debe incluirse y siempre debe ser en R.
+
+3. Siempre que se realiza un análisis de datos, se debe incluir una interpretación del resultado.
+
+
+4. Del libro OpenIntro Statistics, Fourth Edition, resuelve los ejercicios siguientes:
+
+OpenIntro Statistics: https://github.com/Eduardo-Alanis-Garcia/MCDI_1er_Semestre/blob/main/Estadistica/Unidad%204.%20Inferencia%20estad%C3%ADstica%20b%C3%A1sica/2019.openintro.statistics.pdf
+
 Página 187, Ejercicio 5.8 (Twitter users and news, Part I)
 
 5.8 Twitter users and news, Part I. A poll conducted in 2013 found that 52% of U.S. adult Twitter users get
@@ -89,4 +100,12 @@ at that college. What measures do we use to quantify the variability of this est
 quantity using the data from the original sample.
 
 
+
+
+5. Presentar código, resultado e interpretación del análisis en el mismo archivo PDF.
+
+
+6. Guarda el archivo en formato .PDF.
+
+7. Considera los criterios de evaluación: https://github.com/Eduardo-Alanis-Garcia/MCDI_1er_Semestre/blob/main/Estadistica/Unidad%204.%20Inferencia%20estad%C3%ADstica%20b%C3%A1sica/LC_4A_Estadi%CC%81stica_2026-2.pdf
 
