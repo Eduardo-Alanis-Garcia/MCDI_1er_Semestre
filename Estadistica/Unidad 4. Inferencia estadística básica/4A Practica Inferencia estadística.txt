@@ -1,0 +1,92 @@
+Página 187, Ejercicio 5.8 (Twitter users and news, Part I)
+
+5.8 Twitter users and news, Part I. A poll conducted in 2013 found that 52% of U.S. adult Twitter users get
+at least some news on Twitter.12. The standard error for this estimate was 2.4%, and a normal distribution
+may be used to model the sample proportion. Construct a 99% confidence interval for the fraction of U.S.
+adult Twitter users who get some news on Twitter, and interpret the confidence interval in context.
+
+12 Pew Research Center, Washington, D.C. Twitter News Consumers: Young, Mobile and Educated, November 4,
+2013.
+
+
+
+Página 239, Ejercicio 6.34 (Barking deer.)
+
+6.34 Barking deer. Microhabitat factors associated with forage and bed sites of barking deer in Hainan
+Island, China were examined. In this region woods make up 4.8% of the land, cultivated grass plot makes
+up 14.7%, and deciduous forests make up 39.6%. Of the 426 sites where the deer forage, 4 were categorized
+as woods, 16 as cultivated grassplot, and 61 as deciduous forests. The table below summarizes these data.39
+
+Woods Cultivated grassplot Deciduous forests Other Total
+4 16 61 345 426
+
+(a) Write the hypotheses for testing if barking deer prefer to forage in certain habitats over others.
+(b) What type of test can we use to answer this research question?
+(c) Check if the assumptions and conditions required for this test are satisfied.
+(d) Do these data provide convincing evidence that barking deer prefer to
+forage in certain habitats over others? Conduct an appropriate hypothesis test to answer this research question.
+
+
+39 Liwei Teng et al. “Forage and bed sites characteristics of Indian muntjac (Muntiacus muntjak) in Hainan Island,
+China”. In: Ecological Research 19.6 (2004), pp. 675–681
+
+
+
+Página 245, Ejercicio 6.36 (Full body scan)
+
+6.36 Full body scan, Part II. The table below summarizes a data set we first encountered in Exercise 6.26
+regarding views on full-body scans and political affiliation. The differences in each political group may be
+due to chance. Complete the following computations under the null hypothesis of independence between an
+individual’s party affiliation and his support of full-body scans. It may be useful to first add on an extra
+column for row totals before proceeding with the computations.
+Party Affiliation
+Republican Democrat Independent
+Answer
+Should 264 299 351
+Should not 38 55 77
+Don’t know/No answer 16 15 22
+Total 318 369 450
+(a) How many Republicans would you expect to not support the use of full-body scans?
+(b) How many Democrats would you expect to support the use of full- body scans?
+(c) How many Independents would you expect to not know or not answer?
+
+
+Página 259, Ejercicio 7.2 (t-distribution)
+
+7.2 t-distribution. The figure on the right shows three unimodal and symmetric curves: the standard
+normal (z) distribution, the t-distribution with 5 degrees of freedom, and the t-distribution with 1 degree of
+freedom. Determine which is which, and explain your reasoning.
+
+
+Página 299, Ejercicio 7.50 (College credits)
+
+7.50 College credits. A college counselor is interested in estimating how many credits a student typically
+enrolls in each semester. The counselor decides to randomly sample 100 students by using the registrar’s
+database of students. The histogram below shows the distribution of the number of credits taken by these
+students. Sample statistics for this distribution are also provided.
+
+Frequency: 0 10 20
+Number of credits: 8 10 12 14 16 18
+
+Min 8
+Q1 13
+Median 14
+Mean 13.65
+SD 1.91
+Q3 15
+Max 18
+
+(a) What is the point estimate for the average number of credits taken per semester by students at this
+college? What about the median?
+(b) What is the point estimate for the standard deviation of the number of credits taken per semester by
+students at this college? What about the IQR?
+(c) Is a load of 16 credits unusually high for this college? What about 18 credits? Explain your reasoning.
+(d) The college counselor takes another random sample of 100 students and this time finds a sample mean
+of 14.02 units. Should she be surprised that this sample statistic is slightly different than the one from
+the original sample? Explain your reasoning.
+(e) The sample means given above are point estimates for the mean number of credits taken by all students
+at that college. What measures do we use to quantify the variability of this estimate? Compute this
+quantity using the data from the original sample.
+
+
+

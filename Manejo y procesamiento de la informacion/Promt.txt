@@ -4,7 +4,7 @@ Escribe el siguiente promnt de mejor manera :
 
 
 
-Tengo que realizar la siguiente actividad: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%204/tareas/01-plagio.html
+Tengo que realizar la siguiente actividad: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%204/tareas/02-similaridad.html
 
 Puedes resolverla considerando lo visto en clase y mis tareas anteriores:
 
@@ -77,6 +77,14 @@ Material: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%204/0
 Video: https://www.youtube.com/watch?v=5ZgVumzoq8k
 
 Ejemplo: https://msubrayada.github.io/Procesamiento-de-Informacion/unidad%204/Modelos%20de%20Lenguaje.html
+
+
+
+Tareas unidad 4: 
+
+Actividad 4A: https://github.com/Eduardo-Alanis-Garcia/MCDI_1er_Semestre/blob/main/Manejo%20y%20procesamiento%20de%20la%20informacion/Unidad%204.%20Obtenci%C3%B3n%20de%20encajes%20vectoriales/4A.%20Pr%C3%A1ctica%20Detecci%C3%B3n%20de%20plagio/Practica_4A_Deteccion_de_plagio_EduardoAlanisGarcia.ipynb
+
+
 
 Archivos unidad 4:
 
