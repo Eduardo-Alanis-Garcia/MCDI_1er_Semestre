@@ -1,0 +1,803 @@
+---
+title: "Explotando la localidad y tamaños de instancia"
+author: "Eduardo Alanis García"
+date: today
+lang: es
+language:
+  crossref-fig-title: Figura
+  crossref-fig-prefix: figura
+  crossref-tbl-title: Tabla
+  crossref-tbl-prefix: tabla
+format:
+  html:
+    toc: true
+    number-sections: true
+    code-overflow: wrap
+  pdf:
+    toc: true
+    number-sections: true
+    code-overflow: wrap
+jupyter: julia-1.12
+---
+
+# Actividad: Explotando la localidad y tamaños de instancia
+
+## Introducción
+
+En esta actividad comparo cinco algoritmos de ordenamiento con arreglos aleatorios y casi ordenados de distintos tamaños. Un algoritmo adaptativo ajusta el trabajo que realiza al orden que ya tienen los datos; por eso, puede necesitar menos comparaciones o movimientos cuando la entrada está parcialmente ordenada (Estivill-Castro & Wood, 1992). En este reporte, llamo **localidad** al orden previo de los elementos dentro del arreglo, que represento mediante instancias casi ordenadas. Cook y Kim (1980) observaron que insertion sort es competitivo en listas pequeñas o muy ordenadas, lo que motiva incluirlo en la comparación.
+
+También comparo el número de comparaciones y considero heap sort. El **punto de cruce** es el menor tamaño probado a partir del cual quick sort o merge sort tienen un tiempo mediano menor que insertion sort, tanto en ese tamaño como en todos los tamaños mayores evaluados. Si solo se cumple en el tamaño máximo probado, el resultado es provisional porque no hay tamaños posteriores para confirmarlo.
+
+## Planteamiento del problema
+
+Se ordenan arreglos de tamaños $n \in \{4, 8, 16, 32, 64, 128, 256, 512\}$ en dos condiciones:
+
+1.  **Aleatoria:** un generador de datos para crear instancias aleatorias de tamaño variable $n$.
+2.  **Casi ordenada:** se parte del arreglo ordenado y se realizan intercambios entre posiciones aleatorias, en una cantidad equivalente al $10\%$ del tamaño $n$.
+
+En ambas condiciones se comparan insertion sort, bubble sort adaptativo, quick sort, merge sort y heap sort en todos los tamaños descritos. Para cada tamaño se registra el tiempo mediano y el número de comparaciones de cada algoritmo. Finalmente, se identifica el punto de cruce de quick sort y merge sort respecto a insertion sort.
+
+## Desarrollo de las actividades
+
+### Generación de las instancias
+
+```{julia}
+using BenchmarkTools
+using DataFrames
+using Markdown
+using Plots
+using Random
+using Statistics
+
+gr()
+default(fmt = :png)
+
+function generar_casi_ordenado(n)
+    A = collect(1:n)
+    intercambios = round(Int, 0.10 * n)
+
+    for i in 1:intercambios
+        a = rand(1:n) # Posición aleatoria
+        b = rand(1:n) 
+        while a == b
+            b = rand(1:n)
+        end
+        A[a], A[b] = A[b], A[a] # Intercambio 
+    end
+
+    return A
+end
+
+tamaños = 2 .^ (2:9)
+Random.seed!(1234)
+
+instancias_aleatorias = [shuffle!(collect(1:n)) for n in tamaños]
+instancias_casi_ordenadas = [generar_casi_ordenado(n) for n in tamaños]
+```
+
+Las instancias casi ordenadas usan intercambios entre posiciones distintas. La cantidad se redondea al entero más cercano. Este porcentaje de intercambios es la definición operativa utilizada aquí; no es la misma medida de orden que Cook y Kim (1980) emplearon para comparar sus listas.
+
+### Algoritmos de ordenamiento
+
+Las implementaciones de insertion sort, bubble sort adaptativo, quick sort y heap sort son las del capítulo 4 (Téllez, s. f.-a).
+
+#### Insertion sort
+
+```{julia}
+function insertion_sort!(A)
+    n = length(A)
+    for i in 2:n
+        key = A[i]
+        j = i - 1
+        while j >= 1 && A[j] > key
+            A[j + 1] = A[j]
+            j -= 1
+        end
+
+        A[j + 1] = key
+    end
+
+    A
+end
+```
+
+#### Bubble sort adaptativo
+
+```{julia}
+function adaptive_bubble_sort!(A)
+    n = length(A)
+
+    for i in 1:n-1
+        s = 0
+        for j in 1:n-i
+            if A[j] > A[j + 1]
+                s += 1
+                A[j], A[j + 1] = A[j + 1], A[j]
+            end
+        end
+
+        s == 0 && break
+    end
+
+    A
+end
+```
+
+#### Quick sort
+
+```{julia}
+using Random
+
+function qsort!(A, low=1, high=length(A))
+    if low < high
+        piv = part!(A, low, high)
+        qsort!(A, low, piv - 1)
+        qsort!(A, piv + 1, high)
+    end
+
+    A
+end
+
+function part!(A, low, high)
+    ipiv = rand(low:high)
+    A[ipiv], A[high] = A[high], A[ipiv]
+    piv = A[high]
+
+    i = low - 1
+
+    for j in low:high - 1
+        if A[j] < piv
+            i += 1
+            A[i], A[j] = A[j], A[i]
+        end
+    end
+
+    ipiv = i + 1
+    A[ipiv], A[high] = A[high], A[ipiv]
+    ipiv
+end
+```
+
+#### Heapify
+
+```{julia}
+function heapify!(A, n, i)
+    largest = i
+    l = 2i
+    r = 2i + 1
+
+    if l <= n && A[l] > A[largest]
+        largest = l
+    end
+    if r <= n && A[r] > A[largest]
+        largest = r
+    end
+    if largest != i
+        A[i], A[largest] = A[largest], A[i]
+        heapify!(A, n, largest)
+    end
+end
+```
+
+#### Heap sort
+
+```{julia}
+function heap_sort!(A)
+    n = length(A)
+
+    for i in n ÷ 2 : -1 : 1
+        heapify!(A, n, i)
+    end
+    for i in n : -1 : 2
+        A[1], A[i] = A[i], A[1]
+        heapify!(A, i - 1, 1)
+    end
+
+    A
+end
+```
+
+#### Merge sort
+
+```{julia}
+function merge!(A, low, mid, high, temp, menor)
+    for i in low:high
+        temp[i] = A[i]
+    end
+
+    i = low
+    j = mid + 1
+    k = low
+
+    while i <= mid && j <= high
+        if !menor(temp[j], temp[i])
+            A[k] = temp[i]
+            i += 1
+        else
+            A[k] = temp[j]
+            j += 1
+        end
+        k += 1
+    end
+
+    while i <= mid
+        A[k] = temp[i]
+        i += 1
+        k += 1
+    end
+end
+
+function merge_sort!(A, low, high, temp, menor)
+    if low < high
+        mid = low + (high - low) ÷ 2
+        merge_sort!(A, low, mid, temp, menor)
+        merge_sort!(A, mid + 1, high, temp, menor)
+        merge!(A, low, mid, high, temp, menor)
+    end
+    return A
+end
+
+function merge_sort!(A, menor)
+    temp = similar(A)
+    return merge_sort!(A, 1, length(A), temp, menor)
+end
+```
+
+### Comprobación de los algoritmos
+
+Antes de medir, compruebo que cada algoritmo ordene correctamente un arreglo pequeño.
+
+```{julia}
+algoritmos = [
+    ("Insertion sort", insertion_sort!),
+    ("Bubble sort adaptativo", adaptive_bubble_sort!),
+    ("Quick sort", qsort!),
+    ("Merge sort", A -> merge_sort!(A, (a, b) -> a < b)),
+    ("Heap sort", heap_sort!)
+]
+```
+
+
+```{julia}
+prueba = [5, 1, 4, 8, 2, 6, 3, 7]
+esperado = collect(1:length(prueba))
+
+for (nombre, algoritmo) in algoritmos
+    resultado = algoritmo(copy(prueba))
+    @assert resultado == esperado
+end
+
+println("Todo correcto")
+```
+
+
+### Algoritmos de ordenamiento con contador
+
+Para contar comparaciones, uso estas funciones que aumentan el contador cada vez que se comparan dos elementos. 
+
+#### Funciones para contar comparaciones
+
+```{julia}
+function mayor_contado!(comparaciones, a, b)
+    comparaciones[1] += 1
+    return a > b
+end
+
+function menor_contado!(comparaciones, a, b)
+    comparaciones[1] += 1
+    return a < b
+end
+```
+
+#### Insertion sort
+
+```{julia}
+function contar_insertion_sort!(A)
+    comparaciones = [0]
+    n = length(A)
+
+    for i in 2:n
+        key = A[i]
+        j = i - 1
+
+        while j >= 1 && mayor_contado!(comparaciones, A[j], key)
+            A[j + 1] = A[j]
+            j -= 1
+        end
+
+        A[j + 1] = key
+    end
+
+    return comparaciones[1]
+end
+```
+
+#### Bubble sort adaptativo
+
+```{julia}
+function contar_adaptive_bubble_sort!(A)
+    comparaciones = [0]
+    n = length(A)
+
+    for i in 1:n-1
+        s = 0
+        for j in 1:n-i
+            if mayor_contado!(comparaciones, A[j], A[j + 1])
+                s += 1
+                A[j], A[j + 1] = A[j + 1], A[j]
+            end
+        end
+
+        s == 0 && break
+    end
+
+    return comparaciones[1]
+end
+```
+
+#### Quick sort
+
+```{julia}
+function part_contar!(A, low, high, comparaciones)
+    ipiv = rand(low:high)
+    A[ipiv], A[high] = A[high], A[ipiv]
+    piv = A[high]
+    i = low - 1
+
+    for j in low:high - 1
+        if menor_contado!(comparaciones, A[j], piv)
+            i += 1
+            A[i], A[j] = A[j], A[i]
+        end
+    end
+
+    ipiv = i + 1
+    A[ipiv], A[high] = A[high], A[ipiv]
+    return ipiv
+end
+
+function qsort_contar!(A, comparaciones, low=1, high=length(A))
+    if low < high
+        piv = part_contar!(A, low, high, comparaciones)
+        qsort_contar!(A, comparaciones, low, piv - 1)
+        qsort_contar!(A, comparaciones, piv + 1, high)
+    end
+end
+
+function contar_qsort!(A)
+    comparaciones = [0]
+    qsort_contar!(A, comparaciones)
+    return comparaciones[1]
+end
+```
+
+#### Merge sort
+
+```{julia}
+function merge_contar!(A, low, mid, high, temp, comparaciones)
+    for i in low:high
+        temp[i] = A[i]
+    end
+
+    i = low
+    j = mid + 1
+    k = low
+
+    while i <= mid && j <= high
+        if !menor_contado!(comparaciones, temp[j], temp[i])
+            A[k] = temp[i]
+            i += 1
+        else
+            A[k] = temp[j]
+            j += 1
+        end
+        k += 1
+    end
+
+    while i <= mid
+        A[k] = temp[i]
+        i += 1
+        k += 1
+    end
+
+end
+
+function merge_sort_contar!(A, low, high, temp, comparaciones)
+    if low < high
+        mid = low + (high - low) ÷ 2
+        merge_sort_contar!(A, low, mid, temp, comparaciones)
+        merge_sort_contar!(A, mid + 1, high, temp, comparaciones)
+        merge_contar!(A, low, mid, high, temp, comparaciones)
+    end
+end
+
+function contar_merge_sort!(A)
+    comparaciones = [0]
+    temp = similar(A)
+    merge_sort_contar!(A, 1, length(A), temp, comparaciones)
+    return comparaciones[1]
+end
+```
+
+#### Heap sort
+
+```{julia}
+function heapify_contar!(A, n, i, comparaciones)
+    largest = i
+    l = 2i
+    r = 2i + 1
+
+    if l <= n && mayor_contado!(comparaciones, A[l], A[largest])
+        largest = l
+    end
+    if r <= n && mayor_contado!(comparaciones, A[r], A[largest])
+        largest = r
+    end
+
+    if largest != i
+        A[i], A[largest] = A[largest], A[i]
+        heapify_contar!(A, n, largest, comparaciones)
+    end
+end
+
+function contar_heap_sort!(A)
+    comparaciones = [0]
+    n = length(A)
+
+    for i in n ÷ 2 : -1 : 1
+        heapify_contar!(A, n, i, comparaciones)
+    end
+    for i in n : -1 : 2
+        A[1], A[i] = A[i], A[1]
+        heapify_contar!(A, i - 1, 1, comparaciones)
+    end
+
+    return comparaciones[1]
+end
+```
+
+## Experimentos y resultados
+
+### Medición de tiempos y comparaciones
+
+El conteo se realiza por separado del cronometraje. `@benchmark` mide los algoritmos originales, sin el costo adicional de actualizar el contador. El uso de la mediana para resumir las mediciones sigue la metodología de análisis experimental presentada por Téllez (s. f.-b).
+
+#### Ejecución y medición
+
+```{julia}
+contadores = [
+    contar_insertion_sort!,
+    contar_adaptive_bubble_sort!,
+    contar_qsort!,
+    contar_merge_sort!,
+    contar_heap_sort!
+]
+
+function contar_comparaciones(contador, entrada)
+    A = copy(entrada)
+    comparaciones = contador(A)
+    @assert issorted(A)         # comprueba que A sí quedó ordenado
+    return comparaciones
+end
+
+function ordenar_lote!(algoritmo, lote)
+    for A in lote
+        algoritmo(A)
+    end
+end
+
+resultados = DataFrame(
+    instancia = String[],
+    n = Int[],
+    algoritmo = String[],
+    comparaciones = Int[],
+    tiempo_mediano_ns = Float64[],
+    muestras = Int[]
+)
+
+for (tipo, instancias) in (
+    ("Aleatoria", instancias_aleatorias),
+    ("Casi ordenada", instancias_casi_ordenadas)
+)
+    for (n, entrada) in zip(tamaños, instancias)
+        for i in 1:length(algoritmos)
+            nombre, algoritmo = algoritmos[i]
+            comparaciones = contar_comparaciones(contadores[i], entrada)
+            tiempo = @benchmark(
+                ordenar_lote!($algoritmo, lote),
+                setup = (lote = [copy($entrada) for _ in 1:100]),
+                samples = 50,
+                evals = 1
+            )
+
+            push!(resultados, (
+                tipo,
+                n,
+                nombre,
+                comparaciones,
+                Float64(median(tiempo).time / 100),
+                length(tiempo)
+            ))
+        end
+    end
+end
+```
+
+```{julia}
+#| include: false
+
+function tabla_markdown(df)
+    celda(x) = replace(string(x), "|" => "\\|")
+    alineacion = [eltype(df[!, j]) <: Number ? "---:" : ":---" for j in 1:ncol(df)]
+    lineas = [
+        "| " * join(celda.(names(df)), " | ") * " |",
+        "| " * join(alineacion, " | ") * " |"
+    ]
+
+    for i in 1:nrow(df)
+        push!(lineas, "| " * join([celda(df[i, j]) for j in 1:ncol(df)], " | ") * " |")
+    end
+
+    return join(lineas, "\n")
+end
+```
+
+La @tbl-aleatoria resume las comparaciones y los tiempos medianos de los algoritmos con entradas aleatorias.
+
+::: {#tbl-aleatoria}
+
+```{julia}
+#| echo: false
+#| output: asis
+
+tabla_aleatoria = resultados[
+    resultados.instancia .== "Aleatoria",
+    [:n, :algoritmo, :comparaciones, :tiempo_mediano_ns]
+]
+rename!(tabla_aleatoria,
+    :n => "Tamaño n",
+    :algoritmo => "Algoritmo",
+    :comparaciones => "Comparaciones",
+    :tiempo_mediano_ns => "Tiempo mediano (ns)"
+)
+print(tabla_markdown(tabla_aleatoria))
+```
+
+Resultados de los algoritmos de ordenamiento en instancias aleatorias.
+:::
+
+La @tbl-casi-ordenada presenta las mismas métricas para las entradas casi ordenadas.
+
+::: {#tbl-casi-ordenada}
+
+```{julia}
+#| echo: false
+#| output: asis
+
+tabla_casi_ordenada = resultados[
+    resultados.instancia .== "Casi ordenada",
+    [:n, :algoritmo, :comparaciones, :tiempo_mediano_ns]
+]
+rename!(tabla_casi_ordenada,
+    :n => "Tamaño n",
+    :algoritmo => "Algoritmo",
+    :comparaciones => "Comparaciones",
+    :tiempo_mediano_ns => "Tiempo mediano (ns)"
+)
+print(tabla_markdown(tabla_casi_ordenada))
+```
+
+Resultados de los algoritmos de ordenamiento en instancias casi ordenadas.
+:::
+
+
+### Gráficas
+
+Las Figuras @fig-tiempo-aleatoria, @fig-comparaciones-aleatoria, @fig-tiempo-casi-ordenada y @fig-comparaciones-casi-ordenada muestran el tiempo mediano y el número de comparaciones para ambas condiciones, en los ocho tamaños probados.
+
+```{julia}
+function graficar_resultado(tabla, tipo, metrica, etiqueta, titulo)
+    p = plot(
+        xscale = :log2,
+        yscale = :log10,
+        xlabel = "Tamaño n",
+        ylabel = etiqueta,
+        title = "$titulo: $tipo",
+        legend = :topleft
+    )
+
+    for (nombre, algoritmo) in algoritmos
+        datos = tabla[(tabla.instancia .== tipo) .& (tabla.algoritmo .== nombre), :]
+        plot!(
+            p,
+            datos.n,
+            datos[!, metrica],
+            label = nombre,
+            marker = :circle,
+            linewidth = 2
+        )
+    end
+
+    return p
+end
+```
+
+#### Tiempos de las instancias aleatorias
+
+La @fig-tiempo-aleatoria compara los tiempos medianos de los cinco algoritmos en las instancias aleatorias.
+
+```{julia}
+#| label: fig-tiempo-aleatoria
+#| fig-cap: "Tiempo mediano de ordenamiento para instancias aleatorias."
+
+grafica_tiempos_aleatoria = graficar_resultado(
+    resultados, "Aleatoria", :tiempo_mediano_ns, "Tiempo mediano (ns)", "Tiempo de ordenamiento"
+)
+display(grafica_tiempos_aleatoria)
+```
+
+#### Comparaciones de las instancias aleatorias
+
+La @fig-comparaciones-aleatoria compara el número de comparaciones en las instancias aleatorias.
+
+```{julia}
+#| label: fig-comparaciones-aleatoria
+#| fig-cap: "Número de comparaciones para instancias aleatorias."
+
+grafica_comparaciones_aleatoria = graficar_resultado(
+    resultados, "Aleatoria", :comparaciones, "Número de comparaciones", "Comparaciones"
+)
+display(grafica_comparaciones_aleatoria)
+```
+
+#### Tiempos de las instancias casi ordenadas
+
+La @fig-tiempo-casi-ordenada compara los tiempos medianos de los cinco algoritmos en las instancias casi ordenadas.
+
+```{julia}
+#| label: fig-tiempo-casi-ordenada
+#| fig-cap: "Tiempo mediano de ordenamiento para instancias casi ordenadas."
+
+grafica_tiempos_casi_ordenada = graficar_resultado(
+    resultados, "Casi ordenada", :tiempo_mediano_ns, "Tiempo mediano (ns)", "Tiempo de ordenamiento"
+)
+display(grafica_tiempos_casi_ordenada)
+```
+
+#### Comparaciones de las instancias casi ordenadas
+
+La @fig-comparaciones-casi-ordenada compara el número de comparaciones en las instancias casi ordenadas.
+
+```{julia}
+#| label: fig-comparaciones-casi-ordenada
+#| fig-cap: "Número de comparaciones para instancias casi ordenadas."
+
+grafica_comparaciones_casi_ordenada = graficar_resultado(
+    resultados, "Casi ordenada", :comparaciones, "Número de comparaciones", "Comparaciones"
+)
+display(grafica_comparaciones_casi_ordenada)
+```
+
+### Punto de cruce
+
+Para cada condición, busco el primer tamaño en el que quick sort o merge sort tiene un tiempo mediano menor que insertion sort y conserva esa ventaja en todos los tamaños evaluados siguientes. La @tbl-puntos-cruce resume los puntos encontrados; un resultado de $n = 512$ es provisional porque ese fue el tamaño máximo probado.
+
+::: {#tbl-puntos-cruce}
+
+```{julia}
+#| echo: false
+#| output: asis
+
+function punto_cruce(tabla, tipo, nombre_algoritmo)
+    insercion = tabla[
+        (tabla.instancia .== tipo) .& (tabla.algoritmo .== "Insertion sort"),
+        :tiempo_mediano_ns
+    ]
+    comparado = tabla[
+        (tabla.instancia .== tipo) .& (tabla.algoritmo .== nombre_algoritmo),
+        :tiempo_mediano_ns
+    ]
+
+    for i in 1:length(tamaños)
+        if all(comparado[i:end] .< insercion[i:end])
+            return tamaños[i]
+        end
+    end
+
+    return nothing
+end
+
+function texto_cruce(n)
+    if n === nothing
+        return "No confirmado"
+    elseif n == last(tamaños)
+        return "n = $n*"
+    else
+        return "n = $n"
+    end
+end
+
+function texto_cambio(aleatoria, casi_ordenada)
+    if aleatoria === nothing
+        if casi_ordenada === nothing
+            return "Sin cruce"
+        end
+        return "No comparable"
+    elseif casi_ordenada === nothing
+        return "Sin cruce casi ordenada"
+    elseif casi_ordenada > aleatoria
+        return "+$(casi_ordenada - aleatoria)"
+    elseif casi_ordenada < aleatoria
+        return "-$(aleatoria - casi_ordenada)"
+    else
+        return "Sin cambio"
+    end
+end
+
+tabla_cruces = DataFrame(
+    algoritmo = String[],
+    aleatoria = String[],
+    casi_ordenada = String[],
+    cambio = String[]
+)
+
+for nombre in ("Quick sort", "Merge sort")
+    cruce_aleatoria = punto_cruce(resultados, "Aleatoria", nombre)
+    cruce_casi_ordenada = punto_cruce(resultados, "Casi ordenada", nombre)
+
+    push!(tabla_cruces, (
+        nombre,
+        texto_cruce(cruce_aleatoria),
+        texto_cruce(cruce_casi_ordenada),
+        texto_cambio(cruce_aleatoria, cruce_casi_ordenada)
+    ))
+end
+
+rename!(tabla_cruces,
+    :algoritmo => "Algoritmo",
+    :aleatoria => "Aleatoria",
+    :casi_ordenada => "Casi ordenada",
+    :cambio => "Cambio en n"
+)
+print(tabla_markdown(tabla_cruces))
+```
+
+Puntos de cruce de quick sort y merge sort respecto a insertion sort.
+:::
+
+En la @tbl-puntos-cruce, el cambio indica cuánto varió el tamaño del punto de cruce entre las dos condiciones. “Sin cruce” significa que no se encontró uno entre los tamaños probados. El asterisco señala que $n = 512$ es el último tamaño evaluado.
+
+
+
+### Discusión
+
+**Complejidad y resultados en instancias aleatorias.** Insertion sort y bubble sort adaptativo tienen tiempo $O(n^2)$ en el peor caso; cuando la entrada ya está ordenada, ambos pueden acercarse a $O(n)$, aunque por mecanismos distintos. Merge sort y heap sort tienen tiempo $O(n \log n)$, mientras que quick sort tiene tiempo esperado $O(n \log n)$ con pivotes aleatorios y un peor caso de $O(n^2)$. Estos órdenes describen cómo crece el trabajo al aumentar $n$.
+
+En las entradas aleatorias de tamaño 512, insertion sort hizo 68,229 comparaciones y tardó 40,754.5 ns. Quick sort hizo 5,338 comparaciones y tardó 51,207.5 ns; merge sort hizo 3,980 y tardó 63,211 ns. Aunque estos dos últimos realizan asintóticamente menos trabajo que insertion sort, sus tiempos fueron mayores en este rango. No contradice la complejidad asintótica. En esta corrida, la @tbl-puntos-cruce no confirma un cruce hasta 512.
+
+
+**Constantes y localidad de memoria.** Insertion sort recorre posiciones contiguas y desplaza elementos cercanos dentro del mismo arreglo; usa poca memoria adicional y tiene un flujo de control simple. Esa localidad y el bajo costo por operación ayudan a explicar por qué puede ser competitivo en tamaños pequeños y moderados, incluso cuando hace más comparaciones. Quick sort también particiona segmentos contiguos en el arreglo, aunque añade recursión y selección aleatoria del pivote. Merge sort recorre secuencialmente sus mitades, lo que favorece accesos contiguos, pero copia elementos a un arreglo auxiliar. Heap sort usa espacio auxiliar constante, pero salta entre un nodo y sus hijos en el arreglo, un patrón menos local que un recorrido secuencial.
+
+La @tbl-aleatoria también muestra que heap sort no fue siempre más rápido que quick sort: por ejemplo, en $n = 32$ quick sort tardó 1,056.5 ns y heap sort 1,137.5 ns. En $n = 512$, heap sort sí fue más rápido que quick sort y merge sort, pero no que insertion sort. Por tanto, los resultados no respaldan un orden fijo de rapidez entre todos los algoritmos; muestran cómo interactúan la complejidad, las constantes, la localidad y el tamaño de la instancia.
+
+## Conclusiones
+
+- Insertion sort fue más rápido que quick sort y merge sort hasta el tamaño máximo probado ($n = 512$), tanto con entradas aleatorias como casi ordenadas. No se confirmó un punto de cruce dentro del intervalo evaluado.
+
+- En las instancias casi ordenadas no se encontró un punto de cruce en el intervalo $n \in \{4, \dots, 512\}$. Si existe uno, ocurre después de 512; estos datos no permiten estimar en qué tamaño.
+
+- La ventaja asintótica de los algoritmos $O(n \log n)$ no garantizó menor tiempo hasta $n = 512$. En ese tamaño, insertion sort hizo muchas más comparaciones en la instancia aleatoria, pero aun así tardó menos que quick sort y merge sort. 
+
+Nota: Los tiempos y, algunos conteos pueden variar al volver a ejecutar el experimento. Las conclusiones describen la corrida realizada previamente al generar el pdf; nuevos resultados podrían modificar el punto de cruce observado (Razón por la cual me costo trabajo un poco la redaccion de las conclusiones dado que con lo renderizado habia modificaciones en los resultados dado que en algunas veces existian cruces y en otras no).
+
+## Referencias
+
+Cook, C. R., & Kim, D. J. (1980). Best sorting algorithm for nearly sorted lists. *Communications of the ACM, 23*(11), 620–624. https://doi.org/10.1145/359024.359026
+
+Estivill-Castro, V., & Wood, D. (1992). A survey of adaptive sorting algorithms. *ACM Computing Surveys, 24*(4), 441–476. https://doi.org/10.1145/146370.146381
+
+Téllez, E. S. (s. f.-a). *Algoritmos de ordenamiento* (capítulo 4). Análisis de algoritmos con Julia. https://sadit.github.io/ALGO-IR/cap4-ordenamiento.html
+
+Téllez, E. S. (s. f.-b). *Introducción al análisis de algoritmos con Julia* (capítulo 2). Análisis de algoritmos con Julia. https://sadit.github.io/ALGO-IR/cap2-analisis.html
+
+
