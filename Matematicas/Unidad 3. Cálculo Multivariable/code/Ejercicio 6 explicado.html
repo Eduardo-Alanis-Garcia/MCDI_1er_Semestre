@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="es" xml:lang="es"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Eduardo Alanís García">
+
+<title>Ejercicio 6: minimización del costo del petróleo</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Ejercicio 6 explicado_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Ejercicio 6 explicado_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="Ejercicio 6 explicado_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="Ejercicio 6 explicado_files/libs/quarto-html/popper.min.js"></script>
+<script src="Ejercicio 6 explicado_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Ejercicio 6 explicado_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Ejercicio 6 explicado_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Ejercicio 6 explicado_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Ejercicio 6 explicado_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Ejercicio 6 explicado_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Ejercicio 6 explicado_files/libs/bootstrap/bootstrap-215b371544c282197b31c8aa00ce3677.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Tabla de contenidos</h2>
+   
+  <ul>
+  <li><a href="#introducción" id="toc-introducción" class="nav-link active" data-scroll-target="#introducción"><span class="header-section-number">1</span> Introducción</a></li>
+  <li><a href="#planteamiento-del-problema" id="toc-planteamiento-del-problema" class="nav-link" data-scroll-target="#planteamiento-del-problema"><span class="header-section-number">2</span> 1. Planteamiento del problema</a>
+  <ul class="collapse">
+  <li><a href="#forma-compacta-del-costo" id="toc-forma-compacta-del-costo" class="nav-link" data-scroll-target="#forma-compacta-del-costo"><span class="header-section-number">2.1</span> 1.1. Forma compacta del costo</a></li>
+  </ul></li>
+  <li><a href="#condiciones-de-primer-orden-el-gradiente" id="toc-condiciones-de-primer-orden-el-gradiente" class="nav-link" data-scroll-target="#condiciones-de-primer-orden-el-gradiente"><span class="header-section-number">3</span> 2. Condiciones de primer orden: el gradiente</a></li>
+  <li><a href="#la-hessiana" id="toc-la-hessiana" class="nav-link" data-scroll-target="#la-hessiana"><span class="header-section-number">4</span> 3. La Hessiana</a></li>
+  <li><a href="#escalamiento-de-las-variables" id="toc-escalamiento-de-las-variables" class="nav-link" data-scroll-target="#escalamiento-de-las-variables"><span class="header-section-number">5</span> 4. Escalamiento de las variables</a></li>
+  <li><a href="#búsqueda-lineal-de-armijo" id="toc-búsqueda-lineal-de-armijo" class="nav-link" data-scroll-target="#búsqueda-lineal-de-armijo"><span class="header-section-number">6</span> 5. Búsqueda lineal de Armijo</a></li>
+  <li><a href="#método-de-newton" id="toc-método-de-newton" class="nav-link" data-scroll-target="#método-de-newton"><span class="header-section-number">7</span> 6. Método de Newton</a></li>
+  <li><a href="#método-quasi-newton-bfgs" id="toc-método-quasi-newton-bfgs" class="nav-link" data-scroll-target="#método-quasi-newton-bfgs"><span class="header-section-number">8</span> 7. Método quasi-Newton BFGS</a></li>
+  <li><a href="#resultados-e-interpretación" id="toc-resultados-e-interpretación" class="nav-link" data-scroll-target="#resultados-e-interpretación"><span class="header-section-number">9</span> 9. Resultados e interpretación</a>
+  <ul class="collapse">
+  <li><a href="#conversión-de-unidades-del-resultado" id="toc-conversión-de-unidades-del-resultado" class="nav-link" data-scroll-target="#conversión-de-unidades-del-resultado"><span class="header-section-number">9.1</span> 9.1. Conversión de unidades del resultado</a></li>
+  </ul></li>
+  <li><a href="#código-completo-en-r" id="toc-código-completo-en-r" class="nav-link" data-scroll-target="#código-completo-en-r"><span class="header-section-number">10</span> Código completo en R</a>
+  <ul class="collapse">
+  <li><a href="#parámetros-y-función-de-costo" id="toc-parámetros-y-función-de-costo" class="nav-link" data-scroll-target="#parámetros-y-función-de-costo"><span class="header-section-number">10.1</span> Parámetros y función de costo</a></li>
+  <li><a href="#gradiente-y-hessiana-analíticas" id="toc-gradiente-y-hessiana-analíticas" class="nav-link" data-scroll-target="#gradiente-y-hessiana-analíticas"><span class="header-section-number">10.2</span> Gradiente y Hessiana analíticas</a></li>
+  <li><a href="#transformación-a-variables-escaladas" id="toc-transformación-a-variables-escaladas" class="nav-link" data-scroll-target="#transformación-a-variables-escaladas"><span class="header-section-number">10.3</span> Transformación a variables escaladas</a></li>
+  <li><a href="#búsqueda-lineal-de-armijo-1" id="toc-búsqueda-lineal-de-armijo-1" class="nav-link" data-scroll-target="#búsqueda-lineal-de-armijo-1"><span class="header-section-number">10.4</span> Búsqueda lineal de Armijo</a></li>
+  <li><a href="#método-de-newton-1" id="toc-método-de-newton-1" class="nav-link" data-scroll-target="#método-de-newton-1"><span class="header-section-number">10.5</span> Método de Newton</a></li>
+  <li><a href="#método-quasi-newton-bfgs-1" id="toc-método-quasi-newton-bfgs-1" class="nav-link" data-scroll-target="#método-quasi-newton-bfgs-1"><span class="header-section-number">10.6</span> Método quasi-Newton BFGS</a></li>
+  <li><a href="#reporte-y-ejecución-de-los-métodos" id="toc-reporte-y-ejecución-de-los-métodos" class="nav-link" data-scroll-target="#reporte-y-ejecución-de-los-métodos"><span class="header-section-number">10.7</span> Reporte y ejecución de los métodos</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Ejercicio 6: minimización del costo del petróleo</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Autor/a</div>
+    <div class="quarto-title-meta-contents">
+             <p>Eduardo Alanís García </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="introducción" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Introducción</h1>
+<p>Este documento desarrolla el Ejercicio 6, cuyo objetivo es encontrar el costo mínimo de enviar petróleo refinado a Japón a través del Estrecho de Malaca. Las decisiones que se optimizan son el tamaño del petrolero, <span class="math inline">\(t\)</span>, y la capacidad de la refinería, <span class="math inline">\(q\)</span>.</p>
+<p>Se aplican dos métodos numéricos de optimización: <strong>Newton</strong>, que usa el gradiente y la matriz Hessiana de segundas derivadas, y <strong>BFGS</strong>, un método quasi-Newton que aproxima la inversa de la Hessiana. En ambos se incorpora una búsqueda lineal de Armijo para elegir pasos que reduzcan el costo y mantengan las variables dentro de su dominio válido.</p>
+</section>
+<section id="planteamiento-del-problema" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> 1. Planteamiento del problema</h1>
+<p>La función c(t,q) representa dólares por kilolitro. El ejercicio restringe las variables a valores positivos, porque un tamaño de petrolero o una capacidad de refinería iguales o menores que cero no tienen sentido en este modelo:</p>
+<p><span class="math display">\[
+t&gt;0,\qquad q&gt;0.
+\]</span></p>
+<p>Los parámetros que aparecen en el enunciado son:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Símbolo</th>
+<th style="text-align: right;">Valor</th>
+<th style="text-align: left;">Significado y unidades</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(a\)</span></td>
+<td style="text-align: right;">0.20</td>
+<td style="text-align: left;">Gastos fijos anuales</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(c_c\)</span></td>
+<td style="text-align: right;">12.5</td>
+<td style="text-align: left;">Precio del crudo, dólares por kL</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(c_i\)</span></td>
+<td style="text-align: right;">0.50</td>
+<td style="text-align: left;">Costo del seguro, dólares por kL</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(c_x\)</span></td>
+<td style="text-align: right;">0.90</td>
+<td style="text-align: left;">Costo de aduana, dólares por kL</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(i\)</span></td>
+<td style="text-align: right;">0.10</td>
+<td style="text-align: left;">Tipo de interés</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(n\)</span></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">Número de puertos</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(p\)</span></td>
+<td style="text-align: right;">7000</td>
+<td style="text-align: left;">Precio del terreno, dólares por m²</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(t\)</span></td>
+<td style="text-align: right;">Variable</td>
+<td style="text-align: left;">Tamaño del petrolero, kL</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(q\)</span></td>
+<td style="text-align: right;">Variable</td>
+<td style="text-align: left;">Capacidad de la refinería, barriles por día</td>
+</tr>
+</tbody>
+</table>
+<p>La conversión de unidades indicada es <span class="math inline">\(1\text{ kL}=6.29\text{ bbl}\)</span>. Por ello, el tamaño del petrolero puede convertirse de kL a barriles multiplicando por 6.29; la capacidad de la refinería puede convertirse de barriles por día a kL por día dividiendo por 6.29.</p>
+<section id="forma-compacta-del-costo" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="forma-compacta-del-costo"><span class="header-section-number">2.1</span> 1.1. Forma compacta del costo</h2>
+<p>Para simplificar la escritura se define</p>
+<p><span class="math display">\[
+S=nt+1.2q
+\]</span></p>
+<p>y se agrupan los parámetros constantes en</p>
+<p><span class="math display">\[
+\begin{aligned}
+c_0 &amp;= c_c+c_i+c_x, &amp;
+A &amp;= \frac{2.09\times10^4}{360}, &amp;
+B &amp;= \frac{1.064\times10^6}{52.47(360)},\\
+C &amp;= \frac{4.242\times10^4a}{52.47(360)}, &amp;
+D &amp;= \frac{1.813ip}{52.47(360)}, &amp;
+E &amp;= \frac{4.25\times10^3a}{52.47(360)},\\
+F &amp;= \frac{5.042\times10^3}{360}, &amp;&amp;
+G = \frac{0.1049}{360}.
+\end{aligned}
+\]</span></p>
+<p>Con los exponentes <span class="math inline">\(r=-0.3017\)</span>, <span class="math inline">\(s=0.4925\)</span>, <span class="math inline">\(u=0.7952\)</span>, <span class="math inline">\(v=0.861\)</span>, <span class="math inline">\(w=-0.1899\)</span> y <span class="math inline">\(m=0.671\)</span>, la función se escribe como</p>
+<p><span class="math display">\[
+c(t,q)=c_0+At^r+B\frac{t^s}{q}+C\frac{t^u}{q}
++D\frac{S^v}{q}+E\frac{S}{q}+Fq^w+Gq^m.
+\]</span></p>
+<p>Esta expresión es la misma función del enunciado, pero con algunos factores agrupados para que sus derivadas y su implementación sean más manejables. Al minimizarla se busca un par <span class="math inline">\((t^*,q^*)\)</span> con el menor costo posible dentro del modelo.</p>
+</section>
+</section>
+<section id="condiciones-de-primer-orden-el-gradiente" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> 2. Condiciones de primer orden: el gradiente</h1>
+<p>El <strong>gradiente</strong> reúne las derivadas parciales de la función con respecto a cada variable. Una derivada parcial mide cómo cambia el costo cuando cambia una variable y se mantiene fija la otra. Un punto estacionario interior satisface</p>
+<p><span class="math display">\[
+\nabla c(t,q)=
+\begin{pmatrix}c_t(t,q)\\c_q(t,q)\end{pmatrix}
+=
+\begin{pmatrix}0\\0\end{pmatrix}.
+\]</span></p>
+<p>Derivando</p>
+<p><span class="math display">\[
+\begin{aligned}
+c_t={}&amp;Ar t^{r-1}
++Bs\frac{t^{s-1}}{q}
++Cu\frac{t^{u-1}}{q}
++Dvn\frac{S^{v-1}}{q}
++E\frac{n}{q},\\
+c_q={}&amp;-B\frac{t^s}{q^2}
+-C\frac{t^u}{q^2}
++D\left(-\frac{S^v}{q^2}+1.2v\frac{S^{v-1}}{q}\right)\\
+&amp;+E\left(-\frac{S}{q^2}+\frac{1.2}{q}\right)
++Fwq^{w-1}+Gmq^{m-1}.
+\end{aligned}
+\]</span></p>
+<p>La primera derivada, <span class="math inline">\(c_t\)</span>, describe el cambio marginal del costo al variar el tamaño del petrolero; <span class="math inline">\(c_q\)</span> describe el cambio marginal al variar la capacidad de la refinería.</p>
+</section>
+<section id="la-hessiana" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> 3. La Hessiana</h1>
+<p>El método de Newton también usa las derivadas de segundo orden. La <strong>Hessiana</strong> organiza estas derivadas en una matriz:</p>
+<p><span class="math display">\[
+H_c(t,q)=
+\begin{pmatrix}
+c_{tt} &amp; c_{tq}\\
+c_{tq} &amp; c_{qq}
+\end{pmatrix}.
+\]</span></p>
+<p>En este modelo, las expresiones implementadas son</p>
+<p><span class="math display">\[
+\begin{aligned}
+c_{tt}={}&amp;Ar(r-1)t^{r-2}
++Bs(s-1)\frac{t^{s-2}}{q}
++Cu(u-1)\frac{t^{u-2}}{q}\\
+&amp;+Dv(v-1)n^2\frac{S^{v-2}}{q},\\[3pt]
+c_{tq}={}&amp;-Bs\frac{t^{s-1}}{q^2}
+-Cu\frac{t^{u-1}}{q^2}\\
+&amp;+Dvn\left(-\frac{S^{v-1}}{q^2}
++1.2(v-1)\frac{S^{v-2}}{q}\right)
+-E\frac{n}{q^2},\\[3pt]
+c_{qq}={}&amp;2B\frac{t^s}{q^3}+2C\frac{t^u}{q^3}\\
+&amp;+D\left(2\frac{S^v}{q^3}-2.4v\frac{S^{v-1}}{q^2}
++1.44v(v-1)\frac{S^{v-2}}{q}\right)\\
+&amp;+E\left(2\frac{S}{q^3}-\frac{2.4}{q^2}\right)
++Fw(w-1)q^{w-2}+Gm(m-1)q^{m-2}.
+\end{aligned}
+\]</span></p>
+</section>
+<section id="escalamiento-de-las-variables" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> 4. Escalamiento de las variables</h1>
+<p>Los valores de <span class="math inline">\(t\)</span> y <span class="math inline">\(q\)</span> son del orden de cien mil, mientras que el costo es del orden de decenas. Para trabajar con coordenadas más pequeñas y equilibrar la escala de las variables, el código define</p>
+<p><span class="math display">\[
+\tau=\frac{t}{10^5},\qquad
+\kappa=\frac{q}{10^5},
+\]</span></p>
+<p>de modo que <span class="math inline">\(t=10^5\tau\)</span> y <span class="math inline">\(q=10^5\kappa\)</span>. El vector de decisión escalado es <span class="math inline">\(z=(\tau,\kappa)^T\)</span>. Por ejemplo, el punto inicial <span class="math inline">\((\tau_0,\kappa_0)=(0.5,1)\)</span> representa <span class="math inline">\(t_0=50\,000\)</span> kL y <span class="math inline">\(q_0=100\,000\)</span> bbl/día.</p>
+<p><span class="math display">\[
+\nabla_z\widetilde c=
+\begin{pmatrix}10^5&amp;0\\0&amp;10^5\end{pmatrix}
+\nabla_{(t,q)}c,
+\qquad
+H_{\widetilde c}=
+\begin{pmatrix}10^5&amp;0\\0&amp;10^5\end{pmatrix}
+H_c
+\begin{pmatrix}10^5&amp;0\\0&amp;10^5\end{pmatrix}.
+\]</span></p>
+</section>
+<section id="búsqueda-lineal-de-armijo" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> 5. Búsqueda lineal de Armijo</h1>
+<p>Un paso completo de Newton o BFGS puede ser demasiado grande, salir del dominio <span class="math inline">\(t,q&gt;0\)</span> o aumentar el costo. Para controlar el tamaño se usa una <strong>búsqueda lineal</strong>: se elige una dirección <span class="math inline">\(d\)</span> y se prueba el nuevo punto</p>
+<p><span class="math display">\[
+z_{\text{nuevo}}=z+\alpha d,
+\]</span></p>
+<p>donde <span class="math inline">\(\alpha\)</span> es el tamaño del paso. La condición de Armijo exige una disminución suficiente:</p>
+<p><span class="math display">\[
+\widetilde c(z+\alpha d)
+\leq \widetilde c(z)+c_1\alpha\,\nabla\widetilde c(z)^Td.
+\]</span></p>
+<p>El código empieza con <span class="math inline">\(\alpha=1\)</span> y, si el punto no es válido o no reduce suficientemente el costo, multiplica <span class="math inline">\(\alpha\)</span> por 0.5. Repite este retroceso hasta encontrar un paso aceptable o alcanzar el paso mínimo programado.</p>
+</section>
+<section id="método-de-newton" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> 6. Método de Newton</h1>
+<p>En cada iteración, el paso de Newton resuelve el sistema lineal</p>
+<p><span class="math display">\[
+H_{\widetilde c}(z_k)d_k=-\nabla\widetilde c(z_k),
+\]</span></p>
+<p>equivalente a <span class="math inline">\(d_k=-H_{\widetilde c}(z_k)^{-1}\nabla\widetilde c(z_k)\)</span>. Después de calcular la dirección, la búsqueda de Armijo decide cuánto avanzar.</p>
+<p>Newton suele converger rápidamente cerca del óptimo, pero la Hessiana puede ser singular o producir una dirección que no reduzca el costo. El script cubre esos casos: si no puede resolver el sistema con una dirección finita de descenso, usa <span class="math inline">\(-\nabla\widetilde c\)</span> (el descenso más pronunciado) como alternativa y aplica la misma búsqueda de Armijo. Si Armijo no encuentra ningún paso aceptable, informa un error en lugar de continuar silenciosamente.</p>
+</section>
+<section id="método-quasi-newton-bfgs" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> 7. Método quasi-Newton BFGS</h1>
+<p>BFGS significa Broyden–Fletcher–Goldfarb–Shanno. Es un método quasi-Newton porque aproxima la inversa de la Hessiana usando los cambios observados en las iteraciones, sin calcular una Hessiana nueva para determinar cada dirección.</p>
+<p>La aproximación inicial de la inversa es la matriz identidad <span class="math inline">\(I\)</span>. En cada paso se calcula</p>
+<p><span class="math display">\[
+d_k=-H_k^{-1}\nabla\widetilde c(z_k),
+\]</span></p>
+<p>y se aplica la búsqueda de Armijo. Después se definen</p>
+<p><span class="math display">\[
+s_k=z_{k+1}-z_k,\qquad
+y_k=\nabla\widetilde c(z_{k+1})-\nabla\widetilde c(z_k),
+\qquad
+\rho_k=\frac{1}{y_k^Ts_k}.
+\]</span></p>
+<p>La actualización de la inversa aproximada es</p>
+<p><span class="math display">\[
+H_{k+1}^{-1}
+=(I-\rho_k s_k y_k^T)H_k^{-1}(I-\rho_k y_k s_k^T)
++\rho_k s_k s_k^T.
+\]</span></p>
+<p>El producto <span class="math inline">\(y_k^Ts_k\)</span> debe tener curvatura positiva suficiente para que la actualización sea estable. El código comprueba esta condición; si no se cumple, reinicia la aproximación con la identidad. También reinicia y usa descenso por gradiente si la dirección BFGS no resulta finita o no apunta cuesta abajo.</p>
+</section>
+<section id="resultados-e-interpretación" class="level1" data-number="9">
+<h1 data-number="9"><span class="header-section-number">9</span> 9. Resultados e interpretación</h1>
+<p>La solución escrita del ejercicio reporta que ambos métodos partieron de <span class="math inline">\((\tau_0,\kappa_0)=(0.5,1)\)</span> y convergieron al mismo mínimo numérico, con diferencias muy pequeñas por el método y el redondeo:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Método</th>
+<th style="text-align: right;">Iteraciones</th>
+<th style="text-align: right;">Tamaño del petrolero <span class="math inline">\(t^*\)</span> (kL)</th>
+<th style="text-align: right;">Capacidad <span class="math inline">\(q^*\)</span> (bbl/día)</th>
+<th style="text-align: right;">Costo ($/kL)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Newton</td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">421 572.2112</td>
+<td style="text-align: right;">204 504.6473</td>
+<td style="text-align: right;">18.02506914</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">BFGS</td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">421 572.2065</td>
+<td style="text-align: right;">204 504.6467</td>
+<td style="text-align: right;">18.02506914</td>
+</tr>
+</tbody>
+</table>
+<p>El valor calculado para el gradiente escalado tiene norma menor que <span class="math inline">\(10^{-9}\)</span> en ambos métodos, lo que satisface el criterio de parada empleado. La Hessiana escalada en la solución tiene valores propios aproximados de 0.0151 y 0.2429. Al ser ambos positivos, la Hessiana es positiva definida y el punto es un <strong>mínimo local estricto</strong>.</p>
+<p>Esta conclusión describe el comportamiento de la función cerca del punto encontrado. La prueba local de curvatura positiva no basta por sí misma para asegurar que ningún otro punto admisible tenga menor costo.</p>
+<section id="conversión-de-unidades-del-resultado" class="level2" data-number="9.1">
+<h2 data-number="9.1" class="anchored" data-anchor-id="conversión-de-unidades-del-resultado"><span class="header-section-number">9.1</span> 9.1. Conversión de unidades del resultado</h2>
+<p>Con <span class="math inline">\(1\text{ kL}=6.29\text{ bbl}\)</span>, los valores reportados se pueden expresar también como</p>
+<p><span class="math display">\[
+t^*\approx421\,572.21(6.29)
+=2\,651\,689.21\text{ bbl},
+\]</span></p>
+<p>y</p>
+<p><span class="math display">\[
+q^*\approx\frac{204\,504.65}{6.29}
+=32\,512.66\text{ kL/día}.
+\]</span></p>
+<p>Por lo tanto, el costo mínimo informado por el ejercicio es aproximadamente 18.0251 dólares por kL, con un petrolero de alrededor de 421 572.21 kL y una refinería de 204 504.65 bbl/día.</p>
+</section>
+</section>
+<section id="código-completo-en-r" class="level1" data-number="10">
+<h1 data-number="10"><span class="header-section-number">10</span> Código completo en R</h1>
+<section id="parámetros-y-función-de-costo" class="level2" data-number="10.1">
+<h2 data-number="10.1" class="anchored" data-anchor-id="parámetros-y-función-de-costo"><span class="header-section-number">10.1</span> Parámetros y función de costo</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">scipen =</span> <span class="dv">999</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Parámetros del modelo</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>a <span class="ot">=</span> <span class="fl">0.20</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>c_c <span class="ot">=</span> <span class="fl">12.5</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>c_i <span class="ot">=</span> <span class="fl">0.50</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>c_x <span class="ot">=</span> <span class="fl">0.90</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>i_rate <span class="ot">=</span> <span class="fl">0.10</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>n_ports <span class="ot">=</span> <span class="dv">2</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>p_land <span class="ot">=</span> <span class="dv">7000</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>conversion_bbl_per_kL <span class="ot">=</span> <span class="fl">6.29</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Exponentes</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>r_exp <span class="ot">=</span> <span class="sc">-</span><span class="fl">0.3017</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>s_exp <span class="ot">=</span> <span class="fl">0.4925</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>u_exp <span class="ot">=</span> <span class="fl">0.7952</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>v_exp <span class="ot">=</span> <span class="fl">0.861</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>w_exp <span class="ot">=</span> <span class="sc">-</span><span class="fl">0.1899</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>m_exp <span class="ot">=</span> <span class="fl">0.671</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Coeficientes de la función compacta </span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>c0 <span class="ot">=</span> c_c <span class="sc">+</span> c_i <span class="sc">+</span> c_x</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>A <span class="ot">=</span> <span class="fl">2.09e4</span> <span class="sc">/</span> <span class="dv">360</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>B <span class="ot">=</span> <span class="fl">1.064e6</span> <span class="sc">/</span> (<span class="fl">52.47</span> <span class="sc">*</span> <span class="dv">360</span>)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>C <span class="ot">=</span> <span class="fl">4.242e4</span> <span class="sc">*</span> a <span class="sc">/</span> (<span class="fl">52.47</span> <span class="sc">*</span> <span class="dv">360</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>D <span class="ot">=</span> <span class="fl">1.813</span> <span class="sc">*</span> i_rate <span class="sc">*</span> p_land <span class="sc">/</span> (<span class="fl">52.47</span> <span class="sc">*</span> <span class="dv">360</span>)</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>E <span class="ot">=</span> <span class="fl">4.25e3</span> <span class="sc">*</span> a <span class="sc">/</span> (<span class="fl">52.47</span> <span class="sc">*</span> <span class="dv">360</span>)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>F <span class="ot">=</span> <span class="fl">5.042e3</span> <span class="sc">/</span> <span class="dv">360</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>G <span class="ot">=</span> <span class="fl">0.1049</span> <span class="sc">/</span> <span class="dv">360</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Escalas de las variables</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>scale_t <span class="ot">=</span> <span class="fl">1e5</span> <span class="co"># kL</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>scale_q <span class="ot">=</span> <span class="fl">1e5</span> <span class="co"># bbl/día</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="co"># Función de costo c(t,q), en dólares por kL.</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>oil_cost <span class="ot">=</span> <span class="cf">function</span>(t, q) {</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(t) <span class="sc">!=</span> <span class="dv">1</span>L <span class="sc">||</span> <span class="fu">length</span>(q) <span class="sc">!=</span> <span class="dv">1</span>L <span class="sc">||</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>      <span class="sc">!</span><span class="fu">is.finite</span>(t) <span class="sc">||</span> <span class="sc">!</span><span class="fu">is.finite</span>(q) <span class="sc">||</span> t <span class="sc">&lt;=</span> <span class="dv">0</span> <span class="sc">||</span> q <span class="sc">&lt;=</span> <span class="dv">0</span>) {</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="cn">Inf</span>)</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  S <span class="ot">=</span> n_ports <span class="sc">*</span> t <span class="sc">+</span> <span class="fl">1.2</span> <span class="sc">*</span> q</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  c0 <span class="sc">+</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    A <span class="sc">*</span> t<span class="sc">^</span>r_exp <span class="sc">+</span></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    B <span class="sc">*</span> t<span class="sc">^</span>s_exp <span class="sc">/</span> q <span class="sc">+</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    C <span class="sc">*</span> t<span class="sc">^</span>u_exp <span class="sc">/</span> q <span class="sc">+</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    D <span class="sc">*</span> S<span class="sc">^</span>v_exp <span class="sc">/</span> q <span class="sc">+</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>    E <span class="sc">*</span> S <span class="sc">/</span> q <span class="sc">+</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>    F <span class="sc">*</span> q<span class="sc">^</span>w_exp <span class="sc">+</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    G <span class="sc">*</span> q<span class="sc">^</span>m_exp</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="gradiente-y-hessiana-analíticas" class="level2" data-number="10.2">
+<h2 data-number="10.2" class="anchored" data-anchor-id="gradiente-y-hessiana-analíticas"><span class="header-section-number">10.2</span> Gradiente y Hessiana analíticas</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Gradiente analítico respecto de (t,q).</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>oil_gradient <span class="ot">=</span> <span class="cf">function</span>(t, q) {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  S <span class="ot">=</span> n_ports <span class="sc">*</span> t <span class="sc">+</span> <span class="fl">1.2</span> <span class="sc">*</span> q</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  c_t <span class="ot">=</span> A <span class="sc">*</span> r_exp <span class="sc">*</span> t<span class="sc">^</span>(r_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    B <span class="sc">*</span> s_exp <span class="sc">*</span> t<span class="sc">^</span>(s_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> q <span class="sc">+</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    C <span class="sc">*</span> u_exp <span class="sc">*</span> t<span class="sc">^</span>(u_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> q <span class="sc">+</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    D <span class="sc">*</span> v_exp <span class="sc">*</span> n_ports <span class="sc">*</span> S<span class="sc">^</span>(v_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> q <span class="sc">+</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    E <span class="sc">*</span> n_ports <span class="sc">/</span> q</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  c_q <span class="ot">=</span> <span class="sc">-</span>B <span class="sc">*</span> t<span class="sc">^</span>s_exp <span class="sc">/</span> q<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    C <span class="sc">*</span> t<span class="sc">^</span>u_exp <span class="sc">/</span> q<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    D <span class="sc">*</span> (<span class="sc">-</span>S<span class="sc">^</span>v_exp <span class="sc">/</span> q<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> <span class="fl">1.2</span> <span class="sc">*</span> v_exp <span class="sc">*</span> S<span class="sc">^</span>(v_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> q) <span class="sc">+</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    E <span class="sc">*</span> (<span class="sc">-</span>S <span class="sc">/</span> q<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> <span class="fl">1.2</span> <span class="sc">/</span> q) <span class="sc">+</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    F <span class="sc">*</span> w_exp <span class="sc">*</span> q<span class="sc">^</span>(w_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    G <span class="sc">*</span> m_exp <span class="sc">*</span> q<span class="sc">^</span>(m_exp <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">c_t =</span> c_t, <span class="at">c_q =</span> c_q)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Hessiana analítica respecto de (t,q).</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>oil_hessian <span class="ot">=</span> <span class="cf">function</span>(t, q) {</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>  S <span class="ot">=</span> n_ports <span class="sc">*</span> t <span class="sc">+</span> <span class="fl">1.2</span> <span class="sc">*</span> q</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  c_tt <span class="ot">=</span> A <span class="sc">*</span> r_exp <span class="sc">*</span> (r_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> t<span class="sc">^</span>(r_exp <span class="sc">-</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    B <span class="sc">*</span> s_exp <span class="sc">*</span> (s_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> t<span class="sc">^</span>(s_exp <span class="sc">-</span> <span class="dv">2</span>) <span class="sc">/</span> q <span class="sc">+</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    C <span class="sc">*</span> u_exp <span class="sc">*</span> (u_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> t<span class="sc">^</span>(u_exp <span class="sc">-</span> <span class="dv">2</span>) <span class="sc">/</span> q <span class="sc">+</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>    D <span class="sc">*</span> v_exp <span class="sc">*</span> (v_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> n_ports<span class="sc">^</span><span class="dv">2</span> <span class="sc">*</span> S<span class="sc">^</span>(v_exp <span class="sc">-</span> <span class="dv">2</span>) <span class="sc">/</span> q</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  c_tq <span class="ot">=</span> <span class="sc">-</span>B <span class="sc">*</span> s_exp <span class="sc">*</span> t<span class="sc">^</span>(s_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> q<span class="sc">^</span><span class="dv">2</span> <span class="sc">-</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    C <span class="sc">*</span> u_exp <span class="sc">*</span> t<span class="sc">^</span>(u_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> q<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    D <span class="sc">*</span> v_exp <span class="sc">*</span> n_ports <span class="sc">*</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>      (<span class="sc">-</span>S<span class="sc">^</span>(v_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> q<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>         <span class="fl">1.2</span> <span class="sc">*</span> (v_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> S<span class="sc">^</span>(v_exp <span class="sc">-</span> <span class="dv">2</span>) <span class="sc">/</span> q) <span class="sc">-</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    E <span class="sc">*</span> n_ports <span class="sc">/</span> q<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  c_qq <span class="ot">=</span> <span class="dv">2</span> <span class="sc">*</span> B <span class="sc">*</span> t<span class="sc">^</span>s_exp <span class="sc">/</span> q<span class="sc">^</span><span class="dv">3</span> <span class="sc">+</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="dv">2</span> <span class="sc">*</span> C <span class="sc">*</span> t<span class="sc">^</span>u_exp <span class="sc">/</span> q<span class="sc">^</span><span class="dv">3</span> <span class="sc">+</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>    D <span class="sc">*</span> (<span class="dv">2</span> <span class="sc">*</span> S<span class="sc">^</span>v_exp <span class="sc">/</span> q<span class="sc">^</span><span class="dv">3</span> <span class="sc">-</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>           <span class="fl">2.4</span> <span class="sc">*</span> v_exp <span class="sc">*</span> S<span class="sc">^</span>(v_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> q<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>           <span class="fl">1.44</span> <span class="sc">*</span> v_exp <span class="sc">*</span> (v_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> S<span class="sc">^</span>(v_exp <span class="sc">-</span> <span class="dv">2</span>) <span class="sc">/</span> q) <span class="sc">+</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>    E <span class="sc">*</span> (<span class="dv">2</span> <span class="sc">*</span> S <span class="sc">/</span> q<span class="sc">^</span><span class="dv">3</span> <span class="sc">-</span> <span class="fl">2.4</span> <span class="sc">/</span> q<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    F <span class="sc">*</span> w_exp <span class="sc">*</span> (w_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> q<span class="sc">^</span>(w_exp <span class="sc">-</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    G <span class="sc">*</span> m_exp <span class="sc">*</span> (m_exp <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> q<span class="sc">^</span>(m_exp <span class="sc">-</span> <span class="dv">2</span>)</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">matrix</span>(<span class="fu">c</span>(c_tt, c_tq, c_tq, c_qq), <span class="at">nrow =</span> <span class="dv">2</span>L, <span class="at">byrow =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>         <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">"t"</span>, <span class="st">"q"</span>), <span class="fu">c</span>(<span class="st">"t"</span>, <span class="st">"q"</span>)))</span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="transformación-a-variables-escaladas" class="level2" data-number="10.3">
+<h2 data-number="10.3" class="anchored" data-anchor-id="transformación-a-variables-escaladas"><span class="header-section-number">10.3</span> Transformación a variables escaladas</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Transformaciones entre variables físicas (t,q) y escaladas (tau,kappa).</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>to_physical <span class="ot">=</span> <span class="cf">function</span>(z) {</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">t =</span> scale_t <span class="sc">*</span> z[<span class="dv">1</span>], <span class="at">q =</span> scale_q <span class="sc">*</span> z[<span class="dv">2</span>])</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>scaled_cost <span class="ot">=</span> <span class="cf">function</span>(z) {</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  physical <span class="ot">=</span> <span class="fu">to_physical</span>(z)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">oil_cost</span>(physical[<span class="st">"t"</span>], physical[<span class="st">"q"</span>])</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>scaled_gradient <span class="ot">=</span> <span class="cf">function</span>(z) {</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  physical <span class="ot">=</span> <span class="fu">to_physical</span>(z)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(scale_t, scale_q) <span class="sc">*</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">oil_gradient</span>(physical[<span class="st">"t"</span>], physical[<span class="st">"q"</span>])</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>scaled_hessian <span class="ot">=</span> <span class="cf">function</span>(z) {</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  physical <span class="ot">=</span> <span class="fu">to_physical</span>(z)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  scale_matrix <span class="ot">=</span> <span class="fu">diag</span>(<span class="fu">c</span>(scale_t, scale_q))</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  scale_matrix <span class="sc">%*%</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">oil_hessian</span>(physical[<span class="st">"t"</span>], physical[<span class="st">"q"</span>]) <span class="sc">%*%</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    scale_matrix</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="búsqueda-lineal-de-armijo-1" class="level2" data-number="10.4">
+<h2 data-number="10.4" class="anchored" data-anchor-id="búsqueda-lineal-de-armijo-1"><span class="header-section-number">10.4</span> Búsqueda lineal de Armijo</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Búsqueda lineal de Armijo; descarta puntos fuera del dominio t,q &gt; 0.</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>armijo_search <span class="ot">=</span> <span class="cf">function</span>(z, direction, gradient, value,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">c1 =</span> <span class="fl">1e-4</span>, <span class="at">contraction =</span> <span class="fl">0.5</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">min_step =</span> <span class="dv">2</span><span class="sc">^-</span><span class="dv">50</span>) {</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  slope <span class="ot">=</span> <span class="fu">sum</span>(gradient <span class="sc">*</span> direction)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.finite</span>(slope) <span class="sc">||</span> slope <span class="sc">&gt;=</span> <span class="dv">0</span>) {</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="cn">NULL</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  step <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> (step <span class="sc">&gt;=</span> min_step) {</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    candidate <span class="ot">=</span> z <span class="sc">+</span> step <span class="sc">*</span> direction</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">is.finite</span>(candidate)) <span class="sc">&amp;&amp;</span> <span class="fu">all</span>(candidate <span class="sc">&gt;</span> <span class="dv">0</span>)) {</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>      candidate_value <span class="ot">=</span> <span class="fu">scaled_cost</span>(candidate)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">is.finite</span>(candidate_value) <span class="sc">&amp;&amp;</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>          candidate_value <span class="sc">&lt;=</span> value <span class="sc">+</span> c1 <span class="sc">*</span> step <span class="sc">*</span> slope) {</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">z =</span> candidate, <span class="at">value =</span> candidate_value, <span class="at">step =</span> step))</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>      }</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    step <span class="ot">=</span> contraction <span class="sc">*</span> step</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="cn">NULL</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="método-de-newton-1" class="level2" data-number="10.5">
+<h2 data-number="10.5" class="anchored" data-anchor-id="método-de-newton-1"><span class="header-section-number">10.5</span> Método de Newton</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>newton_method <span class="ot">=</span> <span class="cf">function</span>(<span class="at">z0 =</span> <span class="fu">c</span>(<span class="at">tau =</span> <span class="fl">0.5</span>, <span class="at">kappa =</span> <span class="dv">1</span>),</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                          <span class="at">tolerance =</span> <span class="fl">1e-9</span>, <span class="at">max_iterations =</span> <span class="dv">100</span>L) {</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">=</span> <span class="fu">as.numeric</span>(z0)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (iteration <span class="cf">in</span> <span class="dv">0</span><span class="sc">:</span>max_iterations) {</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    value <span class="ot">=</span> <span class="fu">scaled_cost</span>(z)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    gradient <span class="ot">=</span> <span class="fu">scaled_gradient</span>(z)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    gradient_norm <span class="ot">=</span> <span class="fu">sqrt</span>(<span class="fu">sum</span>(gradient<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (gradient_norm <span class="sc">&lt;</span> tolerance) {</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">z =</span> z, <span class="at">value =</span> value, <span class="at">iterations =</span> iteration,</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>                  <span class="at">gradient_norm =</span> gradient_norm, <span class="at">converged =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (iteration <span class="sc">==</span> max_iterations) {</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>      <span class="cf">break</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    hessian <span class="ot">=</span> <span class="fu">scaled_hessian</span>(z)</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    newton_step <span class="ot">=</span> <span class="fu">tryCatch</span>(</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.vector</span>(<span class="fu">solve</span>(hessian, gradient)),</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="dv">2</span>L)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    direction <span class="ot">=</span> <span class="sc">-</span>newton_step</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Si la Hessiana no produce descenso, usar -gradiente como respaldo.</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">any</span>(<span class="sc">!</span><span class="fu">is.finite</span>(direction)) <span class="sc">||</span> <span class="fu">sum</span>(gradient <span class="sc">*</span> direction) <span class="sc">&gt;=</span> <span class="dv">0</span>) {</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>      direction <span class="ot">=</span> <span class="sc">-</span>gradient</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>    search <span class="ot">=</span> <span class="fu">armijo_search</span>(z, direction, gradient, value)</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(search)) {</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>      <span class="fu">stop</span>(<span class="st">"Newton: la búsqueda de Armijo no encontró un paso aceptable."</span>)</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>    z <span class="ot">=</span> search<span class="sc">$</span>z</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">z =</span> z, <span class="at">value =</span> <span class="fu">scaled_cost</span>(z), <span class="at">iterations =</span> max_iterations,</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>       <span class="at">gradient_norm =</span> <span class="fu">sqrt</span>(<span class="fu">sum</span>(<span class="fu">scaled_gradient</span>(z)<span class="sc">^</span><span class="dv">2</span>)), <span class="at">converged =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="método-quasi-newton-bfgs-1" class="level2" data-number="10.6">
+<h2 data-number="10.6" class="anchored" data-anchor-id="método-quasi-newton-bfgs-1"><span class="header-section-number">10.6</span> Método quasi-Newton BFGS</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>bfgs_method <span class="ot">=</span> <span class="cf">function</span>(<span class="at">z0 =</span> <span class="fu">c</span>(<span class="at">tau =</span> <span class="fl">0.5</span>, <span class="at">kappa =</span> <span class="dv">1</span>),</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">tolerance =</span> <span class="fl">1e-9</span>, <span class="at">max_iterations =</span> <span class="dv">200</span>L) {</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">=</span> <span class="fu">as.numeric</span>(z0)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  inverse_hessian <span class="ot">=</span> <span class="fu">diag</span>(<span class="dv">2</span>L)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (iteration <span class="cf">in</span> <span class="dv">0</span><span class="sc">:</span>max_iterations) {</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    value <span class="ot">=</span> <span class="fu">scaled_cost</span>(z)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    gradient <span class="ot">=</span> <span class="fu">scaled_gradient</span>(z)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    gradient_norm <span class="ot">=</span> <span class="fu">sqrt</span>(<span class="fu">sum</span>(gradient<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (gradient_norm <span class="sc">&lt;</span> tolerance) {</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">z =</span> z, <span class="at">value =</span> value, <span class="at">iterations =</span> iteration,</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>                  <span class="at">gradient_norm =</span> gradient_norm, <span class="at">converged =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (iteration <span class="sc">==</span> max_iterations) {</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>      <span class="cf">break</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    direction <span class="ot">=</span> <span class="sc">-</span><span class="fu">as.vector</span>(inverse_hessian <span class="sc">%*%</span> gradient)</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">any</span>(<span class="sc">!</span><span class="fu">is.finite</span>(direction)) <span class="sc">||</span> <span class="fu">sum</span>(gradient <span class="sc">*</span> direction) <span class="sc">&gt;=</span> <span class="dv">0</span>) {</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>      inverse_hessian <span class="ot">=</span> <span class="fu">diag</span>(<span class="dv">2</span>L)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>      direction <span class="ot">=</span> <span class="sc">-</span>gradient</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    search <span class="ot">=</span> <span class="fu">armijo_search</span>(z, direction, gradient, value)</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(search)) {</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>      <span class="fu">stop</span>(<span class="st">"BFGS: la búsqueda de Armijo no encontró un paso aceptable."</span>)</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    z_next <span class="ot">=</span> search<span class="sc">$</span>z</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    gradient_next <span class="ot">=</span> <span class="fu">scaled_gradient</span>(z_next)</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    s <span class="ot">=</span> z_next <span class="sc">-</span> z</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">=</span> gradient_next <span class="sc">-</span> gradient</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    ys <span class="ot">=</span> <span class="fu">sum</span>(y <span class="sc">*</span> s)</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Actualización BFGS de la Hessiana inversa aproximada.</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">is.finite</span>(ys) <span class="sc">&amp;&amp;</span> ys <span class="sc">&gt;</span> <span class="fl">1e-12</span> <span class="sc">*</span> <span class="fu">sqrt</span>(<span class="fu">sum</span>(s<span class="sc">^</span><span class="dv">2</span>) <span class="sc">*</span> <span class="fu">sum</span>(y<span class="sc">^</span><span class="dv">2</span>))) {</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>      rho <span class="ot">=</span> <span class="dv">1</span> <span class="sc">/</span> ys</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>      identity <span class="ot">=</span> <span class="fu">diag</span>(<span class="dv">2</span>L)</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>      left <span class="ot">=</span> identity <span class="sc">-</span> rho <span class="sc">*</span> <span class="fu">tcrossprod</span>(s, y)</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>      right <span class="ot">=</span> identity <span class="sc">-</span> rho <span class="sc">*</span> <span class="fu">tcrossprod</span>(y, s)</span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>      inverse_hessian <span class="ot">=</span> left <span class="sc">%*%</span> inverse_hessian <span class="sc">%*%</span> right <span class="sc">+</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>        rho <span class="sc">*</span> <span class="fu">tcrossprod</span>(s, s)</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>      inverse_hessian <span class="ot">=</span> <span class="fu">diag</span>(<span class="dv">2</span>L)</span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>    z <span class="ot">=</span> z_next</span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">z =</span> z, <span class="at">value =</span> <span class="fu">scaled_cost</span>(z), <span class="at">iterations =</span> max_iterations,</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a>       <span class="at">gradient_norm =</span> <span class="fu">sqrt</span>(<span class="fu">sum</span>(<span class="fu">scaled_gradient</span>(z)<span class="sc">^</span><span class="dv">2</span>)), <span class="at">converged =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="reporte-y-ejecución-de-los-métodos" class="level2" data-number="10.7">
+<h2 data-number="10.7" class="anchored" data-anchor-id="reporte-y-ejecución-de-los-métodos"><span class="header-section-number">10.7</span> Reporte y ejecución de los métodos</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>report_result <span class="ot">=</span> <span class="cf">function</span>(method_name, result) {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span>result<span class="sc">$</span>converged) {</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">warning</span>(method_name, <span class="st">" no alcanzó la tolerancia solicitada."</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  physical <span class="ot">=</span> <span class="fu">to_physical</span>(result<span class="sc">$</span>z)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  eigenvalues <span class="ot">=</span> <span class="fu">eigen</span>(<span class="fu">scaled_hessian</span>(result<span class="sc">$</span>z),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                       <span class="at">symmetric =</span> <span class="cn">TRUE</span>, <span class="at">only.values =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>values</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, method_name, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>, <span class="at">sep =</span> <span class="st">""</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Iteraciones: %d</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>iterations))</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"tau = %.10f, kappa = %.10f</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>z[<span class="dv">1</span>], result<span class="sc">$</span>z[<span class="dv">2</span>]))</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"t* = %.4f kL (%.4f bbl)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>              physical[<span class="st">"t"</span>], physical[<span class="st">"t"</span>] <span class="sc">*</span> conversion_bbl_per_kL))</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"q* = %.4f bbl/día (%.4f kL/día)</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>              physical[<span class="st">"q"</span>], physical[<span class="st">"q"</span>] <span class="sc">/</span> conversion_bbl_per_kL))</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Costo = %.10f dólares/kL</span><span class="sc">\n</span><span class="st">"</span>, result<span class="sc">$</span>value))</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="fu">sprintf</span>(<span class="st">"Norma del gradiente escalado = %.3e</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>              result<span class="sc">$</span>gradient_norm))</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Valores propios de la Hessiana escalada:"</span>,</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>      <span class="fu">paste</span>(<span class="fu">sprintf</span>(<span class="st">"%.8f"</span>, eigenvalues), <span class="at">collapse =</span> <span class="st">", "</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">all</span>(eigenvalues <span class="sc">&gt;</span> <span class="dv">0</span>)) {</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"La Hessiana es positiva definida: mínimo local estricto.</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Punto inicial del ejercicio</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>z0 <span class="ot">=</span> <span class="fu">c</span>(<span class="at">tau =</span> <span class="fl">0.5</span>, <span class="at">kappa =</span> <span class="dv">1</span>)</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>newton_result <span class="ot">=</span> <span class="fu">newton_method</span>(z0)</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>bfgs_result <span class="ot">=</span> <span class="fu">bfgs_method</span>(z0)</span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="fu">report_result</span>(<span class="st">"Newton"</span>, newton_result)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Newton
+Iteraciones: 9
+tau = 4.2157221118, kappa = 2.0450464732
+t* = 421572.2112 kL (2651689.2083 bbl)
+q* = 204504.6473 bbl/día (32512.6625 kL/día)
+Costo = 18.0250691418 dólares/kL
+Norma del gradiente escalado = 7.325e-15
+Valores propios de la Hessiana escalada: 0.24293752, 0.01507337 
+La Hessiana es positiva definida: mínimo local estricto.</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">report_result</span>(<span class="st">"BFGS"</span>, bfgs_result)</span></code></pre></div><button title="Copiar al portapapeles" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+BFGS
+Iteraciones: 15
+tau = 4.2157220652, kappa = 2.0450464675
+t* = 421572.2065 kL (2651689.1790 bbl)
+q* = 204504.6467 bbl/día (32512.6624 kL/día)
+Costo = 18.0250691418 dólares/kL
+Norma del gradiente escalado = 9.976e-10
+Valores propios de la Hessiana escalada: 0.24293752, 0.01507337 
+La Hessiana es positiva definida: mínimo local estricto.</code></pre>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copiado");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copiado");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
