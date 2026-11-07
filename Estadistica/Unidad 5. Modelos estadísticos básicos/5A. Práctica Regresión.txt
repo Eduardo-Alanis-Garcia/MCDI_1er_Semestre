@@ -1,0 +1,28 @@
+Instrucciones:
+
+1. Realiza lo que te solicita cada ejercicio.
+
+2. Cuando existe código, debe incluirse y siempre debe ser en R.
+
+3. Siempre que se realiza un análisis de datos, se debe incluir una interpretación del resultado.
+
+4. Del libro OpenIntro Statistics, Fourth Edition, resuelve los ejercicios siguientes:
+
+Página 335, Ejercicio 8.32 (Beer and blood alcohol content)
+
+Página 352, Ejercicio 9.6 (Cherry trees)
+
+Página 366, Usando R, reproduce el modelo de la Figura 9.15 (Dataset disponible en https://www.openintro.org/data/csv/mariokart.csv)
+
+Página 380, Ejercicio 9.16 (Challenger disaster, Part I)
+
+Página 381, Ejercicio 9.18 (Challenger disaster, Part II) incluyendo el ajuste del modelo logístico (usando R) que reproduzca el modelo.
+
+
+5. Presentar código, resultado e interpretación del análisis en el mismo archivo PDF.
+
+6. Guarda el archivo en formato .PDF.
+
+7. Considera los criterios de evaluación.
+
+8. Entrega el documento en el espacio correspondiente.
