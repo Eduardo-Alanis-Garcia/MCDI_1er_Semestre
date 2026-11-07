@@ -32,7 +32,7 @@ E = 4.25e3 * a / (52.47 * 360)
 F = 5.042e3 / 360
 G = 0.1049 / 360
 
-# Escalas de las variables, en las unidades usadas por el enunciado.
+# Escalas de las variables
 scale_t = 1e5 # kL
 scale_q = 1e5 # bbl/día
 
@@ -104,7 +104,7 @@ oil_hessian = function(t, q) {
 }
 
 # Transformaciones entre variables físicas (t,q) y escaladas (tau,kappa).
-# La regla de la cadena se aplica tanto al gradiente como a la Hessiana.
+
 to_physical = function(z) {
   c(t = scale_t * z[1], q = scale_q * z[2])
 }
@@ -247,40 +247,6 @@ bfgs_method = function(z0 = c(tau = 0.5, kappa = 1),
        gradient_norm = sqrt(sum(scaled_gradient(z)^2)), converged = FALSE)
 }
 
-# Diferencias finitas centrales para contrastar el gradiente y la Hessiana
-# analíticos en las coordenadas escaladas.
-finite_difference_gradient = function(z, step = 1e-4) {
-  result = numeric(2L)
-  for (j in 1:2) {
-    e = numeric(2L)
-    e[j] = step
-    result[j] = (scaled_cost(z + e) - scaled_cost(z - e)) / (2 * step)
-  }
-  result
-}
-
-finite_difference_hessian = function(z, step = 1e-3) {
-  result = matrix(0, nrow = 2L, ncol = 2L)
-  f0 = scaled_cost(z)
-
-  for (j in 1:2) {
-    e = numeric(2L)
-    e[j] = step
-    result[j, j] = (scaled_cost(z + e) - 2 * f0 +
-                       scaled_cost(z - e)) / step^2
-  }
-
-  e1 = c(step, 0)
-  e2 = c(0, step)
-  mixed = (scaled_cost(z + e1 + e2) -
-              scaled_cost(z + e1 - e2) -
-              scaled_cost(z - e1 + e2) +
-              scaled_cost(z - e1 - e2)) / (4 * step^2)
-  result[1, 2] = mixed
-  result[2, 1] = mixed
-  result
-}
-
 report_result = function(method_name, result) {
   if (!result$converged) {
     warning(method_name, " no alcanzó la tolerancia solicitada.")
@@ -307,7 +273,7 @@ report_result = function(method_name, result) {
   }
 }
 
-# Punto inicial del ejercicio, expresado en las coordenadas escaladas.
+# Punto inicial del ejercicio,
 z0 = c(tau = 0.5, kappa = 1)
 newton_result = newton_method(z0)
 bfgs_result = bfgs_method(z0)
