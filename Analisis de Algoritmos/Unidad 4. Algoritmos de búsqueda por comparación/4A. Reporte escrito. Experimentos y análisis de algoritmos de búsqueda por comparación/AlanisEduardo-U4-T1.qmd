@@ -1,0 +1,656 @@
+---
+title: "Búsqueda en arreglos ordenados: comparación de B0, B1 y B2"
+author: "Eduardo Alanis García"
+date: today
+lang: es
+format:
+  html:
+    toc: true
+    number-sections: true
+  pdf:
+    toc: true
+    number-sections: true
+jupyter: julia-1.12
+---
+
+# Actividad: Algoritmos de búsqueda en el modelo de comparación
+
+## Introducción
+
+En esta actividad comparo cuatro algoritmos para encontrar la posición de inserción de un valor en un arreglo ordenado: búsqueda binaria acotada, búsqueda secuencial B0, búsqueda no acotada B1 y búsqueda no acotada B2. Además del tiempo de ejecución.
+
+Para los experimentos utilizo un arreglo de $2^{20}$ enteros distintos y tres generadores de consultas: uniforme, en ráfagas y de cola pesada. Los generadores y sus semillas fijas son los de las notas. Para cada distribución analizo lotes de $m \in \{2^4,2^6,\ldots,2^{20}\}$ consultas. 
+
+## Planteamiento del problema
+
+Sea $A[1..n]$ un arreglo ascendente con elementos distintos y sea $x$ el valor que se busca. El resultado es la posición de inserción $p$:
+
+- Si $p=1$, entonces $x \leq A[1]$.
+- Si $2 \leq p \leq n$, entonces $A[p-1] < x \leq A[p]$.
+- Si $p=n+1$, entonces $A[n] < x$.
+
+La tarea no consiste solamente en indicar si x aparece en el arreglo. Se debe encontrar la primera posición cuyo elemento sea mayor o igual que x. Si todos los elementos son menores que x, se devuelve n+1. Esta convención permite resolver de la misma manera las consultas que coinciden con un elemento y las que caen entre dos elementos (Téllez, s. f.-a).
+
+## Desarrollo de las actividades
+
+### Fundamento de los algoritmos
+
+La búsqueda binaria acotada reduce a la mitad el intervalo de posibles posiciones en cada iteración. En una búsqueda independiente, su número de comparaciones en el peor caso depende de $n$ y es $O(\log n)$.
+
+La búsqueda secuencial B0 revisa el arreglo desde `sp`. Si `sp=1`, su trabajo depende de la posición de inserción: las consultas que se resuelven cerca del comienzo pueden terminar pronto, pero las que caen al final requieren recorrer casi todo el arreglo. Su peor caso es $O(n)$.
+
+La búsqueda doblada B1 inspecciona posiciones que aumentan geométricamente hasta encontrar un límite superior para la respuesta; luego aplica búsqueda binaria en el intervalo identificado. Su costo se relaciona con la distancia desde `sp`, y es menor cuando la respuesta está cerca de esa pista que cuando se busca directamente en todo el arreglo.
+
+La búsqueda doblemente doblada B2 acota primero la respuesta con los sondeos relativos $2, 4, 16, 256, \ldots$; después busca el exponente dentro del intervalo y finalmente aplica búsqueda binaria a las posiciones. En búsquedas sucesivas también aprovecha la distancia desde `sp`; el código de este reporte sigue la estrategia de las notas (Téllez, s. f.-a).
+
+Las cotas presentadas en las notas se resumen en la siguiente tabla. Corresponden a una búsqueda con `sp=1`, por lo que en B0, B1 y B2, $p$ es la posición de inserción desde el inicio; en la búsqueda binaria acotada, el costo se expresa en función del tamaño total $n$.
+
+| Algoritmo                | Costo de comparaciones                       |
+|:-------------------------|:---------------------------------------------|
+| Búsqueda binaria acotada | $O(\log n)$                                  |
+| Búsqueda secuencial B0   | $O(\min(p,n))$                               |
+| Búsqueda no acotada B1   | $C_1(p) < 2\log_2 p + O(1)$                  |
+| Búsqueda no acotada B2   | $C_2(p) < \log_2 p + 2\log_2\log_2 p + O(1)$ |
+
+En arreglos finitos, para una consulta cuya posición de inserción es $n+1$, B0 realiza $n$ comparaciones porque termina después del último elemento disponible.
+
+En búsquedas sucesivas, `sp` es la posición de inserción anterior y el trabajo de B0, B1 y B2 depende del desplazamiento hasta la nueva respuesta. Si ambas consultas tienen la misma posición de inserción, el algoritmo resuelve la siguiente en tiempo constante. La columna de distancias usa precisamente las diferencias entre respuestas consecutivas.
+
+`CountingArray` incrementa su contador cada vez que se accede a un elemento con `A[i]`. Por ello, las cifras experimentales representan accesos al arreglo; no son un contador manual de comparaciones ni incluyen las operaciones aritméticas de índices o las condiciones que verifican límites. Las versiones cronometradas reciben el arreglo ordinario para que la instrumentación no forme parte del tiempo medido.
+
+### Generación del arreglo y de las consultas
+
+Arreglos
+
+```{julia}
+using Random
+using BenchmarkTools
+using DataFrames
+using Plots
+using LaTeXStrings
+using Statistics
+
+gr()
+default(fmt = :png)
+
+const SEMILLA = 2026
+
+"""
+    genera_arreglo(n; g=8, semilla=SEMILLA)
+
+Arreglo ordenado de n enteros distintos, acumulando huecos uniformes
+en 1:g.
+"""
+function genera_arreglo(n; g=8, semilla=SEMILLA)
+    rng = Xoshiro(semilla)
+    cumsum(rand(rng, 1:g, n))
+end
+
+"""
+    consultas_uniformes(U, m; semilla=SEMILLA + 1)
+
+m valores distintos tomados uniformemente del universo 1:U, ordenados.
+"""
+function consultas_uniformes(U, m; semilla=SEMILLA + 1)
+    rng = Xoshiro(semilla)
+    sort!(randperm(rng, U)[1:m])
+end
+
+"""
+    consultas_rafagas(U, m; k=8, semilla=SEMILLA + 2)
+
+Consultas repartidas en k ráfagas. Cada ráfaga toma m ÷ k valores
+distintos de una ventana de tamaño 4(m ÷ k).
+"""
+function consultas_rafagas(U, m; k=8, semilla=SEMILLA + 2)
+    rng = Xoshiro(semilla)
+    mk = m ÷ k
+    w = 4mk
+    X = Int[]
+
+    for c in rand(rng, 1:U-w, k)
+        append!(X, c .+ randperm(rng, w)[1:mk])
+    end
+
+    return sort!(unique!(X))
+end
+
+"""
+    consultas_cola_pesada(U, m; α=1.5, semilla=SEMILLA + 3)
+
+Genera huecos con distribución de cola pesada y los reescala al universo 1:U.
+"""
+function consultas_cola_pesada(U, m; α=1.5, semilla=SEMILLA + 3)
+    rng = Xoshiro(semilla)
+    h = rand(rng, m) .^ (-1 / α)
+    c = cumsum(h)
+    return unique!(ceil.(Int, U .* c ./ c[end]))
+end
+
+"""
+    distancias(A, X)
+
+Diferencias entre las posiciones de inserción de consultas consecutivas.
+"""
+function distancias(A, X)
+    posiciones = searchsortedfirst.(Ref(A), X)
+    return diff(posiciones)
+end
+
+cuantil(P, q) = sort(P)[max(1, round(Int, q * length(P)))]
+```
+
+Se verifica que el arreglo y los lotes de consultas estén ordenados antes de medir.
+
+```{julia}
+n = 2^20
+A = genera_arreglo(n)
+U = A[end]
+
+generadores = (
+    ("Uniforme", consultas_uniformes),
+    ("Ráfagas", consultas_rafagas),
+    ("Cola pesada", consultas_cola_pesada)
+)
+
+@assert length(A) == n
+@assert issorted(A)
+@assert all(diff(A) .> 0)
+@assert U >= 2^20
+
+println("n = $(length(A)), U = $U")
+```
+
+Antes de los experimentos, reproduzco los valores de control del Listado 6 para comprobar que las semillas y los generadores producen las mismas instancias de referencia.
+
+```{julia}
+generadores_control = (
+    ("uniforme", consultas_uniformes),
+    ("ráfagas", consultas_rafagas),
+    ("cola pesada", consultas_cola_pesada)
+)
+
+for (nombre, generar) in generadores_control, m in (2^8, 2^14, 2^20)
+    X = generar(U, m)
+    P = distancias(A, X)
+    etiqueta = rpad(nombre, 12) * rpad("m = 2^$(Int(log2(m)))", 10)
+    etiqueta *= rpad("|X| = $(length(X))", 16)
+    q = (cuantil(P, 0.5), cuantil(P, 0.9), cuantil(P, 0.99), maximum(P))
+    println(etiqueta, "p: mediana = $(q[1]), q90 = $(q[2]), q99 = $(q[3]), máx = $(q[4])")
+end
+```
+
+### Implementación de los algoritmos
+
+
+```{julia}
+"""
+    seqsearch(A, x, sp=1)
+
+Búsqueda unaria B0 desde la pista `sp`.
+"""
+function seqsearch(A, x, sp=1)
+    n = length(A)
+    while sp <= n && x > A[sp]
+        sp += 1
+    end
+
+    return sp
+end
+
+"""
+    binarysearch(A, x, sp=1, ep=length(A))
+
+Encuentra la posición de inserción de `x` en `A`, suponiendo que está en
+`sp:ep+1`.
+"""
+function binarysearch(A, x, sp=1, ep=length(A))
+    lo, hi = sp, ep + 1
+    while lo < hi
+        mid = (lo + hi) ÷ 2
+        if x <= A[mid]
+            hi = mid
+        else
+            lo = mid + 1
+        end
+    end
+
+    return lo
+end
+
+"""
+    doublingsearch(A, x, sp=1)
+
+Búsqueda doblada B1; los sondeos se miden como desplazamientos desde `sp`.
+"""
+function doublingsearch(A, x, sp=1)
+    n = length(A)
+    p = 0
+    i = 1
+
+    while sp+i <= n && A[sp+i] < x
+        p = i
+        i += i
+    end
+
+    return binarysearch(A, x, sp + p, min(n, sp+i))
+end
+```
+
+Búsqueda doblemente doblada B2 de las notas.
+
+```{julia}
+function doublingdoublingsearch(A, x, sp=1)
+    n = length(A)
+    pos(e) = e >= 62 ? typemax(Int) : sp + (1 << e)
+    reached(e) = pos(e) > n || x <= A[pos(e)]
+
+    lo, hi = -1, 1
+    while !reached(hi)
+        lo = hi
+        hi += hi
+    end
+
+    lo += 1
+    while lo < hi
+        mid = (lo + hi) ÷ 2
+        if reached(mid)
+            hi = mid
+        else
+            lo = mid + 1
+        end
+    end
+
+    first = hi == 0 ? sp : pos(hi - 1)
+    return binarysearch(A, x, first, min(n, pos(hi)))
+end
+```
+
+`CountingArray` y `comparaciones` se incorporan tal como aparecen en el listado 3 de las notas.
+
+```{julia}
+mutable struct CountingArray{T} <: AbstractVector{T}
+    data::Vector{T}
+    count::Int
+end
+
+CountingArray(data) = CountingArray(data, 0)
+Base.size(C::CountingArray) = size(C.data)
+Base.IndexStyle(::Type{<:CountingArray}) = IndexLinear()
+
+function Base.getindex(C::CountingArray, i::Int)
+    C.count += 1
+    C.data[i]
+end
+
+"""
+    comparaciones(f, A, x, args...)
+
+Ejecuta la búsqueda `f(A, x, args...)` y regresa la tupla (posición, número de comparaciones)
+"""
+function comparaciones(f, A::CountingArray, x, args...)
+    A.count = 0
+    p = f(A, x, args...)
+    (p, A.count)
+end
+```
+
+### Comprobación de las implementaciones
+
+Se prueban arreglos aleatorios ordenados con y sin duplicados, varias longitudes, consultas antes, dentro y después del arreglo, y distintas pistas válidas. Una pista `sp` es válida cuando `sp` no está después de la posición de inserción esperada: todos los elementos anteriores a `sp` ya son menores que la consulta. Esta condición también se cumple en una secuencia no decreciente de consultas cuando `sp` es el resultado de la consulta anterior. `searchsortedfirst` proporciona la posición de inserción esperada, incluida la primera ocurrencia cuando hay duplicados.
+
+```{julia}
+algoritmos = (
+    ("Búsqueda binaria", binarysearch),
+    ("Búsqueda secuencial B0", seqsearch),
+    ("Búsqueda no acotada B1", doublingsearch),
+    ("Búsqueda no acotada B2", doublingdoublingsearch)
+)
+
+A_prueba = [10, 20, 30, 40]
+X_prueba = [5, 10, 11, 20, 25, 40, 41]
+@assert issorted(X_prueba)
+
+rng_pruebas = Xoshiro(SEMILLA + 10)
+for n_prueba in (1, 2, 7, 31, 128), duplicados in (false, true)
+    A_aleatorio = duplicados ?
+        sort!(rand(rng_pruebas, 1:4n_prueba, n_prueba)) :
+        sort!(randperm(rng_pruebas, 4n_prueba)[1:n_prueba])
+    if duplicados && n_prueba > 1
+        A_aleatorio[end] = A_aleatorio[1]
+        sort!(A_aleatorio)
+    end
+    consultas = sort!(unique!(vcat(
+        [0, 4n_prueba + 1],
+        A_aleatorio,
+        A_aleatorio .- 1,
+        A_aleatorio .+ 1,
+        rand(rng_pruebas, 0:4n_prueba + 1, 4n_prueba)
+    )))
+
+    for x in consultas
+        p_esperada = searchsortedfirst(A_aleatorio, x)
+        pistas = unique((1, cld(p_esperada, 2), p_esperada))
+
+        for (_, algoritmo) in algoritmos, sp in pistas
+            @assert algoritmo(A_aleatorio, x, sp) == p_esperada
+        end
+    end
+end
+
+println("Las cuatro búsquedas coinciden con searchsortedfirst en los arreglos aleatorios y las pistas válidas.")
+```
+
+### Función buscar_todas
+
+`buscar_todas` requiere que `X` esté ordenado de forma no decreciente. Si la respuesta anterior fue `p`, entonces todos los elementos anteriores a `p` son menores que la siguiente consulta y pueden descartarse. B0 avanza desde esa posición; B1 y B2 la usan como origen de sus sondeos. La búsqueda binaria de referencia es independiente y recibe siempre `sp=1`.
+
+```{julia}
+function buscar_todas(algoritmo, A, X)
+    posiciones = Vector{Int}(undef, length(X))
+    sp = 1
+
+    for (j, i) in enumerate(eachindex(X))
+        pista = algoritmo === binarysearch ? 1 : sp
+        p = algoritmo(A, X[i], pista)
+        posiciones[j] = p
+        sp = p
+    end
+
+    return posiciones
+end
+
+function contar_todas(algoritmo, A::CountingArray, X)
+    A.count = 0
+    posiciones = buscar_todas(algoritmo, A, X)
+    return posiciones, A.count
+end
+```
+
+Se verifica que el procesamiento secuencial también respete el relevo de pistas. Para la búsqueda binaria independiente, el resultado debe coincidir aunque cada consulta reinicie en 1.
+
+```{julia}
+esperado = searchsortedfirst.(Ref(A_prueba), X_prueba)
+for (nombre, algoritmo) in algoritmos
+    @assert buscar_todas(algoritmo, A_prueba, X_prueba) == esperado
+end
+
+rng_lotes_prueba = Xoshiro(SEMILLA + 11)
+for n_prueba in (1, 2, 7, 31, 128), duplicados in (false, true)
+    A_aleatorio = duplicados ?
+        sort!(rand(rng_lotes_prueba, 1:4n_prueba, n_prueba)) :
+        sort!(randperm(rng_lotes_prueba, 4n_prueba)[1:n_prueba])
+    if duplicados && n_prueba > 1
+        A_aleatorio[end] = A_aleatorio[1]
+        sort!(A_aleatorio)
+    end
+    X_aleatorio = sort!(vcat(
+        [0, 0, 4n_prueba + 1, 4n_prueba + 1],
+        rand(rng_lotes_prueba, 0:4n_prueba + 1, 8n_prueba)
+    ))
+    respuestas = searchsortedfirst.(Ref(A_aleatorio), X_aleatorio)
+    A_aleatorio_contado = CountingArray(A_aleatorio)
+
+    for (nombre, algoritmo) in algoritmos
+        @assert buscar_todas(algoritmo, A_aleatorio, X_aleatorio) == respuestas
+        respuestas_contadas, total = contar_todas(
+            algoritmo,
+            A_aleatorio_contado,
+            X_aleatorio
+        )
+        @assert respuestas_contadas == respuestas
+        @assert total == A_aleatorio_contado.count
+    end
+end
+```
+
+```{julia}
+ms = 2 .^ (4:2:20)
+A_contada = CountingArray(A)
+
+perfil_instancias = DataFrame(
+    distribucion = String[],
+    m_solicitado = Int[],
+    consultas_efectivas = Int[],
+    mediana_distancia = Int[],
+    q90_distancia = Int[],
+    q99_distancia = Int[],
+    maxima_distancia = Int[],
+    fraccion_menor_raiz_n = Float64[],
+    fraccion_menor_n_sobre_log2_n2 = Float64[]
+)
+
+lotes = Dict{Tuple{String, Int}, Vector{Int}}()
+
+for (distribucion, generar) in generadores, m in ms
+    X = generar(U, m)
+    @assert issorted(X)
+    @assert !isempty(X)
+    lotes[(distribucion, m)] = X
+
+    P = distancias(A, X)
+    raiz_n = sqrt(n)
+    umbral_b2 = n / log2(n)^2
+    push!(perfil_instancias, (
+        distribucion,
+        m,
+        length(X),
+        cuantil(P, 0.50),
+        cuantil(P, 0.90),
+        cuantil(P, 0.99),
+        maximum(P),
+        count(p -> p < raiz_n, P) / length(P),
+        count(p -> p < umbral_b2, P) / length(P)
+    ))
+end
+
+rename!(perfil_instancias,
+    :distribucion => "Distribución",
+    :m_solicitado => "m solicitado",
+    :consultas_efectivas => "Consultas efectivas",
+    :mediana_distancia => "Mediana de p",
+    :q90_distancia => "Cuantil 0.90 de p",
+    :q99_distancia => "Cuantil 0.99 de p",
+    :maxima_distancia => "Máximo de p",
+    :fraccion_menor_raiz_n => "Fracción p < √n",
+    :fraccion_menor_n_sobre_log2_n2 => "Fracción p < n/log₂²(n)"
+)
+
+perfil_instancias
+```
+
+La distancia `p` de esta tabla es el desplazamiento entre las posiciones de inserción de dos consultas consecutivas. Las dos últimas columnas muestran qué fracción de las distancias queda bajo los umbrales teóricos para B1 y B2. La primera consulta de cada lote empieza con `sp=1` y no forma parte de esas diferencias.
+
+
+Medicion
+
+```{julia}
+resultados = DataFrame(
+    distribucion = String[],
+    n = Int[],
+    m_solicitado = Int[],
+    consultas_efectivas = Int[],
+    algoritmo = String[],
+    comparaciones_totales = Int[],
+    comparaciones_promedio = Float64[],
+    tiempo_total_ns = Float64[],
+    tiempo_por_consulta_ns = Float64[],
+    muestras = Int[]
+)
+
+for (distribucion, generar) in generadores, m in ms
+    X = lotes[(distribucion, m)]
+    consultas_esperadas = searchsortedfirst.(Ref(A), X)
+
+    for (nombre, algoritmo) in algoritmos
+        posiciones, comparaciones_totales = contar_todas(algoritmo, A_contada, X)
+        @assert posiciones == consultas_esperadas
+
+        trial = @benchmark(
+            buscar_todas($algoritmo, $A, $X),
+            samples = 10,
+            evals = 1
+        )
+
+        tiempo = median(trial).time
+        cantidad = length(X)
+
+        push!(resultados, (
+            distribucion,
+            n,
+            m,
+            cantidad,
+            nombre,
+            comparaciones_totales,
+            comparaciones_totales / cantidad,
+            tiempo,
+            tiempo / cantidad,
+            length(trial)
+        ))
+    end
+end
+
+
+resultados
+```
+
+La tabla presenta comparaciones y tiempo acumulado para cada distribución, tamaño y algoritmo. En `CountingArray`, cada lectura de un elemento corresponde a una comparación; las operaciones de índices y los límites no se cuentan. Las consultas repetidas que los generadores eliminan reducen `consultas_efectivas`, pero el lote conserva el `m_solicitado` de la configuración.
+
+```{julia}
+nombre_distribuciones = [nombre for (nombre, _) in generadores]
+nombre_algoritmos = [nombre for (nombre, _) in algoritmos]
+graficas = Any[]
+
+for distribucion in nombre_distribuciones
+    datos = resultados[resultados.distribucion .== distribucion, :]
+    figura_comparaciones = plot(
+        xlabel = "Consultas solicitadas, m",
+        ylabel = "Comparaciones totales",
+        title = "Comparaciones: $distribucion",
+        xscale = :log10,
+        yscale = :log10,
+        legend = :topleft
+    )
+    figura_tiempos = plot(
+        xlabel = "Consultas solicitadas, m",
+        ylabel = "Tiempo total (ns)",
+        title = "Tiempo: $distribucion",
+        xscale = :log10,
+        yscale = :log10,
+        legend = :topleft
+    )
+
+    for nombre in nombre_algoritmos
+        datos_algoritmo = sort(
+            datos[datos.algoritmo .== nombre, :],
+            :m_solicitado
+        )
+        plot!(
+            figura_comparaciones,
+            datos_algoritmo.m_solicitado,
+            datos_algoritmo.comparaciones_totales,
+            label = nombre,
+            marker = :circle,
+            linewidth = 2
+        )
+        plot!(
+            figura_tiempos,
+            datos_algoritmo.m_solicitado,
+            datos_algoritmo.tiempo_total_ns,
+            label = nombre,
+            marker = :circle,
+            linewidth = 2
+        )
+    end
+
+    push!(graficas, figura_comparaciones, figura_tiempos)
+end
+
+plot(graficas..., layout = (3, 2), size = (1200, 1100))
+```
+
+
+Puntos de cruce
+
+El siguiente resumen localiza, para cada distribución, el primer tamaño medido donde B1 o B2 deja de usar menos comparaciones que la búsqueda binaria independiente, y donde B0 iguala o mejora ese costo. Para el tiempo se aplica el mismo criterio a la mediana del tiempo total. Si no aparece un cruce en el rango medido, la tabla lo indica sin extrapolar.
+
+```{julia}
+function primer_cruce(datos, distribucion, algoritmo, columna; b0=false)
+    comparacion = sort(
+        datos[datos.distribucion .== distribucion, :],
+        :m_solicitado
+    )
+    base = comparacion[comparacion.algoritmo .== "Búsqueda binaria", :]
+    metodo = comparacion[comparacion.algoritmo .== algoritmo, :]
+    condicion(i) = b0 ? metodo[i, columna] <= base[i, columna] :
+                        metodo[i, columna] >= base[i, columna]
+    indice = findfirst(condicion, eachindex(metodo.m_solicitado))
+
+    if isnothing(indice)
+        return "Sin cruce hasta m=$(maximum(metodo.m_solicitado))"
+    end
+
+    m = metodo.m_solicitado[indice]
+    return "m=$m (m/n=$(round(m / metodo.n[indice], digits=4)))"
+end
+
+tabla_cruces = DataFrame(
+    distribucion = String[],
+    metrica = String[],
+    algoritmo = String[],
+    primer_cruce = String[]
+)
+
+for distribucion in nombre_distribuciones
+    for (algoritmo, es_b0) in (
+        ("Búsqueda secuencial B0", true),
+        ("Búsqueda no acotada B1", false),
+        ("Búsqueda no acotada B2", false)
+    )
+        for (metrica, columna) in (
+            ("Comparaciones", :comparaciones_totales),
+            ("Tiempo", :tiempo_total_ns)
+        )
+            push!(tabla_cruces, (
+                distribucion,
+                metrica,
+                algoritmo,
+                primer_cruce(resultados, distribucion, algoritmo, columna; b0=es_b0)
+            ))
+        end
+    end
+end
+
+rename!(tabla_cruces,
+    :distribucion => "Distribución",
+    :metrica => "Métrica",
+    :algoritmo => "Algoritmo",
+    :primer_cruce => "Primer cruce observado"
+)
+
+tabla_cruces
+```
+
+### Discusión de los resultados
+
+Las posiciones de inserción de las consultas están ordenadas porque los generadores producen `X` en orden. Por eso, la respuesta anterior es una pista válida para la siguiente: si la consulta aumenta, su primera posición de inserción posible no puede retroceder. La pista es una posición de inserción absoluta, que puede valer `n+1`; en ese caso las búsquedas no acotadas devuelven `n+1` sin leer fuera del arreglo.
+
+B0 avanza elemento por elemento desde `sp`. B1 prueba desplazamientos que se duplican (`1, 2, 4, 8, ...`) y busca dentro del intervalo resultante. B2 encuentra primero el exponente que acota la respuesta mediante sondeos `2, 4, 16, 256, ...`, hace búsqueda binaria entre exponentes y termina con búsqueda binaria sobre posiciones. En los tres algoritmos, `sp` desplaza el origen de esos sondeos. La pista no es el último índice que el algoritmo leyó, sino la posición de inserción que devolvió la consulta anterior.
+
+La búsqueda binaria se incluye como referencia independiente: cada consulta vuelve a comenzar con `sp=1` y busca en el arreglo completo. Aunque las consultas estén ordenadas, pasarle el resultado anterior cambiaría la referencia a una búsqueda con límite inferior conocido y ya no mediría una búsqueda binaria independiente.
+
+La tabla de perfil caracteriza, para cada lote, las distancias entre posiciones de inserción consecutivas y su relación con los umbrales teóricos `√n` y `n/log₂²(n)`. Las gráficas comparan por separado comparaciones totales y tiempo acumulado. El contador registra una lectura por comparación en estos algoritmos; el tiempo también incluye cálculo de índices y control de ciclos, de modo que menos comparaciones no garantiza por sí solo menor tiempo. La tabla de cruces señala el primer `m/n` observado en que cambia la ventaja según cada métrica. Estos cruces son experimentales para las semillas y tamaños indicados, y no se extrapolan fuera del rango medido.
+
+Para intersectar dos listas ordenadas, de tamaños `m ≤ n`, conviene buscar cada elemento de la lista corta en la larga usando la pista del resultado anterior. Si `m/n` es pequeño, la distancia típica entre consultas puede ser grande y la búsqueda binaria independiente sirve como referencia; si las distancias quedan por debajo de `√n`, B1 puede reducir comparaciones, y si quedan por debajo de `n/log₂²(n)`, B2 puede conservar ventaja. B0 resulta atractivo cuando las posiciones avanzan muy poco, aunque su costo crece linealmente con ese desplazamiento. La distribución de distancias y los cruces medidos permiten elegir entre ellos para los datos del experimento.
+
+## Conclusiones
+
+La implementación y las pruebas comprueban que las cuatro búsquedas encuentran la primera posición de inserción, también con duplicados y con pistas válidas distintas de 1. En secuencias ordenadas, `buscar_todas` pasa a B0, B1 y B2 la posición de inserción anterior. En cambio, la búsqueda binaria se reinicia en `sp=1` para conservar su papel de referencia independiente.
+
+El perfil y las mediciones cubren las tres distribuciones y todos los tamaños de lote solicitados. Las comparaciones y el tiempo se muestran por separado, y la tabla de cruces calcula los umbrales observados para cada una. B0 puede beneficiarse de lotes densos porque, al reutilizar la pista, su recorrido avanza junto con las consultas; B1 y B2 aprovechan desplazamientos pequeños de forma más eficiente que un recorrido lineal. La búsqueda binaria ofrece un costo estable por consulta respecto al tamaño total del arreglo. La recomendación entre ellas depende de las distancias observadas, del cociente entre tamaños de las listas y de la métrica que se quiera optimizar.
+
+## Referencias
+
+Téllez, E. S. (s. f.-a). *Algoritmos de búsqueda en el modelo de comparación* (capítulo 5). Curso Introductorio al Análisis de Algoritmos con Julia. https://sadit.github.io/ALGO-IR/cap5-busqueda.html
+
+Téllez, E. S. (s. f.-b). *Introducción al análisis de algoritmos con Julia* (capítulo 2). Curso Introductorio al Análisis de Algoritmos con Julia. https://sadit.github.io/ALGO-IR/cap2-analisis.html
